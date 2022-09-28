@@ -14,11 +14,15 @@
     "@types/jest": "^27.5.2",
     "@types/node": "10.17.27",
     "@types/prettier": "2.6.0",
+    "@aws-lambda-powertools/logger": "^1.2.1",
+    "@aws-lambda-powertools/tracer": "^1.2.1",
+    "@types/aws-lambda": "^8.10.101",
     "jest": "^27.5.1",
     "ts-jest": "^27.1.4",
     "aws-cdk": "2.43.1",
     "ts-node": "^10.9.1",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "ksuid": "^2.0.0"
   },
   "dependencies": {
     "aws-cdk-lib": "2.43.1",
