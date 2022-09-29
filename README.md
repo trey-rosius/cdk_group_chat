@@ -9,13 +9,72 @@ I'll approach this project in a branch based manner.
 
 ## Access Patterns
 
-### Users
+### USER
 
 - Create User Account
 
 ```
 PK: USER#USERID
 SK: USER#USERID
+```
+
+- Update User Account
+
+```
+PK: USER#USERID
+SK: USER#USERID
+```
+
+### GROUP
+
+- Create Group(anyone can create a group)
+
+```
+PK: GROUP#GROUPID
+SK: GROUP#GROUPID
+GSI1PK: USER#USERID
+GSI1SK: GROUP#GROUPID
+
+```
+
+- Add Users to Group
+
+```
+PK:GROUP#GROUPID
+SK:USER#USERID
+
+```
+
+- Get all groups created by user
+  We'll use a GSI here
+  GSI => getAllGroupsCreatedByUser
+  use `begins_with`
+
+```
+GSI1PK:USER#USERID
+GSI1SK:GROUP#
+```
+
+### MESSAGE
+
+- Send message
+
+```
+PK:MESSAGE#MESSAGEID
+SK:MESSAGE#MESSAGEID
+GSI2PK:GROUP#GROUPID
+GSI2SK: MESSAGE#MESSAGEID
+```
+
+- Get messages per group
+  We'll use a GSI to get these
+  GSI => getMessagesPerGroup
+  Use `begins_with`
+
+```
+GSI2PK: GROUP#GROUPID
+GSI2SK: MESSAGE#
+
 ```
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
