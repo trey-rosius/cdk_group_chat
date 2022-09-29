@@ -77,6 +77,11 @@ GSI2SK: MESSAGE#
 
 ```
 
+### Typing indicator
+
+PK:USER#USERID
+SK:GROUP#GROUPID#TYPING
+
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Useful commands
