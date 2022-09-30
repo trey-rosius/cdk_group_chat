@@ -1,10 +1,78 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
-type User {
+type Subscription {
+  typingIndicator: Boolean @aws_subscribe(mutations: ["typingIndicator"])
+}
+
+type Mutation {
+  createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
+  updateUserAccount(input: UpdateUserInput!): User! @aws_cognito_user_pools
+
+  createGroup(input: GroupInput!): Group! @aws_cognito_user_pools
+  addUserToGroup(userId: String!, groupId: String!): Boolean!
+  sendMessage(input: MessageInput!): Message! @aws_cognito_user_pools
+
+  typingIndicator(userId: String!, groupId: String!): Boolean!
+}
+
+type Query {
+  getAllGroupsCreatedByUser(userId: String!): [Group!]! @aws_cognito_user_pools
+  getAllMessagesPerGroup(groupId: String!): [Message!]! @aws_cognito_user_pools
+}
+
+type User @aws_cognito_user_pools {
   id: ID!
   username: String!
   email: String!
+  profilePicUrl: String!
+  updatedOn: AWSDateTime
+  createdOn: AWSDateTime!
+}
+
+input UserInput @aws_cognito_user_pools {
+  username: String!
+  email: String!
+  profilePicUrl: String!
+  createdOn: AWSDateTime!
+}
+
+input UpdateUserInput @aws_cognito_user_pools {
+  id: ID!
+  username: String!
+  profilePicUrl: String!
+}
+
+type Message @aws_cognito_user_pools {
+  id: ID!
+  userId: String!
+  user: User
+  groupId: String!
+  msgText: String!
+  createdOn: AWSTimestamp!
+}
+
+input MessageInput @aws_cognito_user_pools {
+  userId: String!
+  groupId: String!
+  msgText: String!
+  createdOn: AWSTimestamp!
+}
+
+type Group @aws_cognito_user_pools {
+  id: ID!
+  userId: String!
+  name: String!
+  description: String!
+  createdOn: AWSTimestamp!
+}
+
+input GroupInput {
+  userId: String!
+  name: String!
+  description: String!
+  createdOn: AWSTimestamp!
 }
