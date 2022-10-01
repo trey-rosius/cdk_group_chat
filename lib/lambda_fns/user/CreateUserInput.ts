@@ -3,6 +3,7 @@ type UserInput = {
     username: string;
     email: string;
     createdOn: string;
+    profilePicUrl: string;
   };
 };
 

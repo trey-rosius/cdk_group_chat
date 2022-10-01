@@ -37,7 +37,6 @@ input UserInput @aws_cognito_user_pools {
   username: String!
   email: String!
   profilePicUrl: String!
-  createdOn: AWSDateTime!
 }
 
 input UpdateUserInput @aws_cognito_user_pools {

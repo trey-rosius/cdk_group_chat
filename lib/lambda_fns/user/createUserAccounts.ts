@@ -9,6 +9,7 @@ type UserReturnParameters = {
   ENTITY: string;
   username: string;
   email: string;
+  profilePicUrl: string;
 
   createdOn: string;
 };
@@ -18,12 +19,12 @@ async function createUserAccount(
   logger: Logger
 ): Promise<UserReturnParameters> {
   const documentClient = new DynamoDB.DocumentClient();
-  let tableName = process.env.ACMS_DB;
+  let tableName = process.env.GroupChat_DB;
   const createdOn = Date.now().toString();
   const id: string = uuid();
   if (tableName === undefined) {
     logger.error(`Couldn't get the table name`);
-    tableName = "AcmsDynamoDBTable";
+    tableName = "groupChatDynamoDBTable";
   }
 
   const userInput: UserEntity = new UserEntity({

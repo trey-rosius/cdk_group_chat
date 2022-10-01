@@ -2,12 +2,13 @@ interface UserParameters {
   id: string;
   username: string;
   email: string;
-
+  profilePicUrl: string;
   createdOn: string;
 }
 class UserEntity {
   id: string;
   username: string;
+  profilePicUrl: string;
   email: string;
   createdOn: string;
 
@@ -15,6 +16,7 @@ class UserEntity {
     id,
     username,
     email,
+    profilePicUrl,
 
     createdOn,
   }: UserParameters) {
@@ -22,6 +24,7 @@ class UserEntity {
 
     this.username = username;
     this.email = email;
+    this.profilePicUrl = profilePicUrl;
 
     this.createdOn = createdOn;
   }
@@ -44,6 +47,7 @@ class UserEntity {
 
       username: this.username,
       email: this.email,
+      profilePicUrl: this.profilePicUrl,
 
       createdOn: this.createdOn,
     };
@@ -55,6 +59,7 @@ class UserEntity {
       ENTITY: "USER",
       username: this.username,
       email: this.email,
+      profilePicUrl: this.profilePicUrl,
 
       createdOn: this.createdOn,
     };

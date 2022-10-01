@@ -1,12 +1,13 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import createUserAccount from "./createUserAccounts";
+
 import { AppSyncResolverEvent, Context } from "aws-lambda";
-import UserInput from "./CreateUserInput";
+import CreateGroupInput from "./CreateGroupInput";
+import createGroup from "./CreateGroup";
 
 const logger = new Logger({ serviceName: "GroupChat" });
 
 exports.handler = async (
-  event: AppSyncResolverEvent<UserInput>,
+  event: AppSyncResolverEvent<CreateGroupInput>,
   context: Context
 ) => {
   logger.addContext(context);
@@ -15,8 +16,8 @@ exports.handler = async (
   );
 
   switch (event.info.fieldName) {
-    case "createUserAccount":
-      return await createUserAccount(event.arguments, logger);
+    case "createGroup":
+      return await createGroup(event.arguments, logger);
 
     default:
       return null;
