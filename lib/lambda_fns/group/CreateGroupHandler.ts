@@ -1,26 +1,21 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import GroupEntity from "./GroupEntity";
+
+import { AppSyncResolverHandler } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
+
+import { Group, MutationCreateGroupArgs } from "../../../appsync";
 import { uuid } from "../../utils";
-import CreateGroupInput from "./CreateGroupInput";
+import GroupEntity from "./GroupEntity";
 
-type GroupReturnParameters = {
-  id: string;
-  ENTITY: string;
-  userId: string;
-  name: string;
-  description: string;
+const logger = new Logger({ serviceName: "CreateGroupLambda" });
 
-  createdOn: string;
-};
-
-async function createGroup(
-  appsyncInput: CreateGroupInput,
-  logger: Logger
-): Promise<GroupReturnParameters> {
+export const handler: AppSyncResolverHandler<
+  MutationCreateGroupArgs,
+  Group
+> = async (event) => {
   const documentClient = new DynamoDB.DocumentClient();
   let tableName = process.env.GroupChat_DB;
-  const createdOn = Date.now().toString();
+  const createdOn = Date.now();
   const id: string = uuid();
   if (tableName === undefined) {
     logger.error(`Couldn't get the table name`);
@@ -29,7 +24,7 @@ async function createGroup(
 
   const groupInput: GroupEntity = new GroupEntity({
     id: id,
-    ...appsyncInput.input,
+    ...event.arguments.input,
     createdOn,
   });
 
@@ -46,5 +41,4 @@ async function createGroup(
     logger.error(`an error occured while creating user ${error}`);
     throw error;
   }
-}
-export default createGroup;
+};

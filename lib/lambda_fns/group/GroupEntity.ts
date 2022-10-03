@@ -3,14 +3,14 @@ interface GroupParameters {
   userId: string;
   name: string;
   description: string;
-  createdOn: string;
+  createdOn: number;
 }
 class GroupEntity {
   id: string;
   userId: string;
   name: string;
   description: string;
-  createdOn: string;
+  createdOn: number;
 
   constructor({
     id,
@@ -67,7 +67,6 @@ class GroupEntity {
   graphQlReturn() {
     return {
       id: this.id,
-      ENTITY: "GROUP",
       userId: this.userId,
       name: this.name,
       description: this.description,

@@ -37,16 +37,39 @@ export class GroupLamdaStacks extends Stack {
       }
     );
 
-    const groupLambda = new NodejsFunction(this, "GroupLambdaHandler", {
+    const createGroupLambda = new NodejsFunction(this, "GroupLambdaHandler", {
       tracing: Tracing.ACTIVE,
       codeSigningConfig,
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: "handler",
-      entry: path.join(__dirname, "lambda_fns/group", "app.ts"),
+      entry: path.join(__dirname, "lambda_fns/group", "CreateGroupHandler.ts"),
 
       memorySize: 1024,
     });
-    groupLambda.role?.addManagedPolicy(
+    createGroupLambda.role?.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
+    );
+
+    const addUserToGroupLambda = new NodejsFunction(
+      this,
+      "addUserToGroupLambdaHandler",
+      {
+        tracing: Tracing.ACTIVE,
+        codeSigningConfig,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        handler: "handler",
+        entry: path.join(
+          __dirname,
+          "lambda_fns/group",
+          "AddUserToGroupHandler.ts"
+        ),
+
+        memorySize: 1024,
+      }
+    );
+    addUserToGroupLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
         "service-role/AWSAppSyncPushToCloudWatchLogs"
       )
@@ -67,7 +90,22 @@ export class GroupLamdaStacks extends Stack {
         type: "AWS_LAMBDA",
 
         lambdaConfig: {
-          lambdaFunctionArn: groupLambda.functionArn,
+          lambdaFunctionArn: createGroupLambda.functionArn,
+        },
+        serviceRoleArn: appsyncLambdaRole.roleArn,
+      }
+    );
+
+    const addUserToGroupDataSources: CfnDataSource = new CfnDataSource(
+      this,
+      "AddUserToGroupLambdaDatasource",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        name: "AddUserToGroupLambdaDatasource",
+        type: "AWS_LAMBDA",
+
+        lambdaConfig: {
+          lambdaFunctionArn: addUserToGroupLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
       }
@@ -83,8 +121,21 @@ export class GroupLamdaStacks extends Stack {
         dataSourceName: lambdaDataSources.attrName,
       }
     );
+
+    const addUserToGroupResolver: CfnResolver = new CfnResolver(
+      this,
+      "addUserToGroupResolver",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Mutation",
+        fieldName: "addUserToGroup",
+        dataSourceName: addUserToGroupDataSources.attrName,
+      }
+    );
     createGroupResolver.addDependsOn(apiSchema);
-    groupChatTable.grantFullAccess(groupLambda);
-    groupLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);
+    addUserToGroupResolver.addDependsOn(apiSchema);
+    groupChatTable.grantFullAccess(createGroupLambda);
+    groupChatTable.grantFullAccess(addUserToGroupLambda);
+    createGroupLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);
   }
 }

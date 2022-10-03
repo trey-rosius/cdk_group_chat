@@ -6,6 +6,7 @@ schema {
 
 type Subscription {
   typingIndicator: Boolean @aws_subscribe(mutations: ["typingIndicator"])
+  newMessage: Message @aws_subscribe(mutations: ["sendMessage"])
 }
 
 type Mutation {
@@ -14,9 +15,14 @@ type Mutation {
 
   createGroup(input: GroupInput!): Group! @aws_cognito_user_pools
   addUserToGroup(userId: String!, groupId: String!): Boolean!
+    @aws_cognito_user_pools
   sendMessage(input: MessageInput!): Message! @aws_cognito_user_pools
 
-  typingIndicator(userId: String!, groupId: String!): Boolean!
+  typingIndicator(
+    userId: String!
+    groupId: String!
+    typing: Boolean!
+  ): Boolean! @aws_cognito_user_pools
 }
 
 type Query {
@@ -50,15 +56,14 @@ type Message @aws_cognito_user_pools {
   userId: String!
   user: User
   groupId: String!
-  msgText: String!
+  messageText: String!
   createdOn: AWSTimestamp!
 }
 
 input MessageInput @aws_cognito_user_pools {
   userId: String!
   groupId: String!
-  msgText: String!
-  createdOn: AWSTimestamp!
+  messageText: String!
 }
 
 type Group @aws_cognito_user_pools {
@@ -73,5 +78,4 @@ input GroupInput {
   userId: String!
   name: String!
   description: String!
-  createdOn: AWSTimestamp!
 }
