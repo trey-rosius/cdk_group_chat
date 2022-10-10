@@ -3,21 +3,21 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { AppSyncResolverHandler } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 
-import { MutationTypingIndicatorArgs } from "../../../appsync";
+import { MutationTypingIndicatorArgs, TypingIndicator } from "../../../appsync";
 import { uuid } from "../../utils";
 
 const logger = new Logger({ serviceName: "TypingIndicatorLambda" });
 
 export const handler: AppSyncResolverHandler<
   MutationTypingIndicatorArgs,
-  Boolean
+  TypingIndicator
 > = async (event) => {
   const documentClient = new DynamoDB.DocumentClient();
   let tableName = process.env.GroupChat_DB;
   const createdOn = Date.now();
   const id: string = uuid();
   if (tableName === undefined) {
-    logger.error(`Couldn't get the table name`);
+    logger.error(`Couldn't get the table name here`);
     tableName = "groupChatDynamoDBTable";
   }
 
@@ -39,7 +39,7 @@ export const handler: AppSyncResolverHandler<
 
   try {
     await documentClient.put(params).promise();
-    return typing;
+    return { userId, groupId, typing };
   } catch (error: any) {
     logger.error(`an error occured while adding typing indicator ${error}`);
     throw new Error(`${error}`);

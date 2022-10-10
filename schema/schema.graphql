@@ -5,7 +5,8 @@ schema {
 }
 
 type Subscription {
-  typingIndicator: Boolean @aws_subscribe(mutations: ["typingIndicator"])
+  typingIndicator: TypingIndicator
+    @aws_subscribe(mutations: ["typingIndicator"])
   newMessage: Message @aws_subscribe(mutations: ["sendMessage"])
 }
 
@@ -22,9 +23,14 @@ type Mutation {
     userId: String!
     groupId: String!
     typing: Boolean!
-  ): Boolean! @aws_cognito_user_pools
+  ): TypingIndicator! @aws_cognito_user_pools
 }
 
+type TypingIndicator @aws_cognito_user_pools {
+  userId: String!
+  groupId: String!
+  typing: Boolean!
+}
 type Query {
   getAllGroupsCreatedByUser(userId: String!): [Group!]! @aws_cognito_user_pools
   getAllMessagesPerGroup(groupId: String!): [Message!]! @aws_cognito_user_pools
