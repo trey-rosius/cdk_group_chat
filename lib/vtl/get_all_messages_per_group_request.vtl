@@ -1,6 +1,6 @@
  
- #set($gsi2pk = $util.dynamodb.toStringJson("GROUP#${ctx.prev.result.groupId}"))
- #set($gsi2sk =$util.dynamodb.toStringJson("MESSAGE#"))
+ #set($gsi2pk = $util.dynamodb.toStringJson("GROUP#${ctx.args.groupId}"))
+ #set($gsi2sk = $util.dynamodb.toStringJson("MESSAGE#"))
 {
     "version" : "2018-05-29",
 

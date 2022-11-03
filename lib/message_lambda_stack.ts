@@ -144,6 +144,42 @@ export class MessageLamdaStacks extends Stack {
       }
     );
 
+    const getResultMessagesPerGroupResolver: CfnResolver = new CfnResolver(
+      this,
+      "getResultMessagesPerGroupResolver",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getAllMessagesPerGroup",
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_all_messages_per_group_request.vtl"
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_all_messages_per_group_response.vtl"
+        ).toString(),
+      }
+    );
+
+    const getUserPerMessageResolver: CfnResolver = new CfnResolver(
+      this,
+      "getUserPerMessageResolver",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Message",
+        fieldName: "user",
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_user_per_message_request.vtl"
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_user_per_message_response.vtl"
+        ).toString(),
+      }
+    );
+    /*
     const getAllMessagesPerGroupFunction: CfnFunctionConfiguration =
       new CfnFunctionConfiguration(this, "getAllMessagesPerGroupFunction", {
         apiId: groupChatGraphqlApi.attrApiId,
@@ -198,10 +234,11 @@ export class MessageLamdaStacks extends Stack {
         ).toString(),
       }
     );
-
+*/
     sendMessageResolver.addDependsOn(apiSchema);
     typingIndicatorResolver.addDependsOn(apiSchema);
     getResultMessagesPerGroupResolver.addDependsOn(apiSchema);
+    getUserPerMessageResolver.addDependsOn(getResultMessagesPerGroupResolver);
 
     groupChatTable.grantFullAccess(sendMessageLambda);
     groupChatTable.grantFullAccess(typingIndicatorLambda);
