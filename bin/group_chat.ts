@@ -23,6 +23,7 @@ new GroupLamdaStacks(app, "GroupLambdaStacks", {
   groupChatTable: groupChatStack.groupChatTable,
   apiSchema: groupChatStack.apiSchema,
   groupChatGraphqlApi: groupChatStack.groupChatGraphqlApi,
+  groupChatDatasource: groupChatStack.groupChatTableDatasource,
 });
 
 new MessageLamdaStacks(app, "MessageLambdaStacks", {

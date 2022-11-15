@@ -1,4 +1,8 @@
  
+#set($limit=$util.defaultIfNull($ctx.args.limit, 10))
+#if($limit>100)
+  #set($limit=100)
+#end
  #set($gsi2pk = $util.dynamodb.toStringJson("GROUP#${ctx.args.groupId}"))
  #set($gsi2sk = $util.dynamodb.toStringJson("MESSAGE#"))
 {

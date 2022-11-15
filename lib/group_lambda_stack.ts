@@ -13,18 +13,24 @@ import { Construct } from "constructs";
 import * as path from "path";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Tracing } from "aws-cdk-lib/aws-lambda";
-
+import { readFileSync } from "fs";
 interface GroupLambdaStackProps extends StackProps {
   groupChatGraphqlApi: CfnGraphQLApi;
   apiSchema: CfnGraphQLSchema;
   groupChatTable: Table;
+  groupChatDatasource: CfnDataSource;
 }
 
 export class GroupLamdaStacks extends Stack {
   constructor(scope: Construct, id: string, props: GroupLambdaStackProps) {
     super(scope, id, props);
 
-    const { groupChatTable, groupChatGraphqlApi, apiSchema } = props;
+    const {
+      groupChatTable,
+      groupChatGraphqlApi,
+      apiSchema,
+      groupChatDatasource,
+    } = props;
     const signingProfile = new signer.SigningProfile(this, "SigningProfile", {
       platform: signer.Platform.AWS_LAMBDA_SHA384_ECDSA,
     });
@@ -132,8 +138,46 @@ export class GroupLamdaStacks extends Stack {
         dataSourceName: addUserToGroupDataSources.attrName,
       }
     );
+
+    const getGroupsUserBelongsToResolver: CfnResolver = new CfnResolver(
+      this,
+      "getAllGroupsUserBelongsTo",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getGroupsUserBelongsTo",
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_groups_user_belongs_to_request.vtl"
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_groups_user_belongs_to_response.vtl"
+        ).toString(),
+      }
+    );
+
+    const getGroupResolver: CfnResolver = new CfnResolver(
+      this,
+      "getGroupResolver",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "UserGroup",
+        fieldName: "group",
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_group_request.vtl"
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_group_response.vtl"
+        ).toString(),
+      }
+    );
     createGroupResolver.addDependsOn(apiSchema);
     addUserToGroupResolver.addDependsOn(apiSchema);
+    getGroupsUserBelongsToResolver.addDependsOn(apiSchema);
+    getGroupResolver.addDependsOn(getGroupsUserBelongsToResolver);
     groupChatTable.grantFullAccess(createGroupLambda);
     groupChatTable.grantFullAccess(addUserToGroupLambda);
     createGroupLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);

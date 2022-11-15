@@ -25,6 +25,8 @@ export const handler: AppSyncResolverHandler<
       id: id,
       PK: `GROUP#${groupId}`,
       SK: `USER#${userId}`,
+      GSI3PK: `USER#${userId}`,
+      GSI3SK: `GROUP#${groupId}`,
       userId: userId,
       groupId: groupId,
       createdOn: createdOn,

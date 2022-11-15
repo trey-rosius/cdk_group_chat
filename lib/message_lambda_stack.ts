@@ -238,6 +238,7 @@ export class MessageLamdaStacks extends Stack {
     sendMessageResolver.addDependsOn(apiSchema);
     typingIndicatorResolver.addDependsOn(apiSchema);
     getResultMessagesPerGroupResolver.addDependsOn(apiSchema);
+
     getUserPerMessageResolver.addDependsOn(getResultMessagesPerGroupResolver);
 
     groupChatTable.grantFullAccess(sendMessageLambda);

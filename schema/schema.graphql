@@ -32,8 +32,21 @@ type TypingIndicator @aws_cognito_user_pools {
   typing: Boolean!
 }
 type Query {
-  getAllGroupsCreatedByUser(userId: String!): [Group!]! @aws_cognito_user_pools
-  getAllMessagesPerGroup(groupId: String!): [Message!]! @aws_cognito_user_pools
+  getAllGroupsCreatedByUser(
+    userId: String!
+    limit: Int
+    nextToken: String
+  ): GroupResult! @aws_cognito_user_pools
+  getAllMessagesPerGroup(
+    groupId: String!
+    limit: Int
+    nextToken: String
+  ): MessageResult! @aws_cognito_user_pools
+  getGroupsUserBelongsTo(
+    userId: String!
+    limit: Int
+    nextToken: String
+  ): GroupResult! @aws_cognito_user_pools
 }
 
 type User @aws_cognito_user_pools {
@@ -66,10 +79,20 @@ type Message @aws_cognito_user_pools {
   createdOn: AWSTimestamp!
 }
 
+type MessageResult @aws_cognito_user_pools {
+  items: [Message!]!
+  nextToken: String
+}
 input MessageInput @aws_cognito_user_pools {
   userId: String!
   groupId: String!
   messageText: String!
+}
+
+type UserGroup @aws_cognito_user_pools {
+  userId: String!
+  group: Group!
+  createdOn: AWSTimestamp!
 }
 
 type Group @aws_cognito_user_pools {
@@ -84,4 +107,8 @@ input GroupInput {
   userId: String!
   name: String!
   description: String!
+}
+type GroupResult @aws_cognito_user_pools {
+  items: [UserGroup!]! @aws_cognito_user_pools
+  nextToken: String
 }
