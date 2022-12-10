@@ -46,7 +46,7 @@ type Query {
     userId: String!
     limit: Int
     nextToken: String
-  ): GroupResult! @aws_cognito_user_pools
+  ): UserGroupResult! @aws_cognito_user_pools
 }
 
 type User @aws_cognito_user_pools {
@@ -109,6 +109,10 @@ input GroupInput {
   description: String!
 }
 type GroupResult @aws_cognito_user_pools {
+  items: [Group!]! @aws_cognito_user_pools
+  nextToken: String
+}
+type UserGroupResult @aws_cognito_user_pools {
   items: [UserGroup!]! @aws_cognito_user_pools
   nextToken: String
 }

@@ -139,6 +139,24 @@ export class GroupLamdaStacks extends Stack {
       }
     );
 
+    const getGroupsCreatedByUserResolver: CfnResolver = new CfnResolver(
+      this,
+      "getGroupsCreatedByUserResolver",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getAllGroupsCreatedByUser",
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_groups_created_by_user_request.vtl"
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_groups_created_by_user_response.vtl"
+        ).toString(),
+      }
+    );
+
     const getGroupsUserBelongsToResolver: CfnResolver = new CfnResolver(
       this,
       "getAllGroupsUserBelongsTo",
@@ -176,6 +194,7 @@ export class GroupLamdaStacks extends Stack {
     );
     createGroupResolver.addDependsOn(apiSchema);
     addUserToGroupResolver.addDependsOn(apiSchema);
+    getGroupsCreatedByUserResolver.addDependsOn(apiSchema);
     getGroupsUserBelongsToResolver.addDependsOn(apiSchema);
     getGroupResolver.addDependsOn(getGroupsUserBelongsToResolver);
     groupChatTable.grantFullAccess(createGroupLambda);
