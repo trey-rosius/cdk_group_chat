@@ -1,10 +1,12 @@
 # Modern Serverless Application Development with AWS Amplify,Flutter, GraphQL,CDK and Typescript
 
 Focusing on the business logic and how your application brings value to end users, with little to no attention as to how the servers are running your application is the new and recommended way by which developers are building serverless applications.
+
 By not focusing on operations or infrastructure provisioning, the time it takes for an application to move from prototype to production is cut in half. Iteration is rapid, user feedback is quick, leading to significant app improvements.
+
 In this workshop, we would be building a fullstack serverless mobile group chat application using
 
-- (AWS AppSync)[https://aws.amazon.com/appsync/]
+- [AWS AppSync](https://aws.amazon.com/appsync/)
 - GraphQl
 - Cloud Development Kit(CDK)
 - Typescript
