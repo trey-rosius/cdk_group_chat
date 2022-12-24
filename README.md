@@ -1,11 +1,25 @@
-# A GraphQl Group Chat Api built with CDK, TypeScript,Appsync and Single Table Design
+# Modern Serverless Application Development with AWS Amplify,Flutter, GraphQL,CDK and Typescript
 
-I'll approach this project in a branch based manner.
+Focusing on the business logic and how your application brings value to end users, with little to no attention as to how the servers are running your application is the new and recommended way by which developers are building serverless applications.
+By not focusing on operations or infrastructure provisioning, the time it takes for an application to move from prototype to production is cut in half. Iteration is rapid, user feedback is quick, leading to significant app improvements.
+In this workshop, we would be building a fullstack serverless mobile group chat application using
 
-## Branches
+- (AWS AppSync)[https://aws.amazon.com/appsync/]
+- GraphQl
+- Cloud Development Kit(CDK)
+- Typescript
+- Amplify Flutter.
 
-- schema
--
+## AWS AppSync
+
+Aws AppSync allows developers to easily implement engaging real-time application experiences by automatically publishing data updates to subscribed API clients via serverless WebSockets connections
+
+Cloud providers
+
+- defined all frameworks and services used to create this app
+- why building modern cloud apps are essential
+- Design Decisions. For Example, why multiple stacks
+- why CDK as IaC
 
 ## Access Patterns
 
