@@ -7,14 +7,43 @@ By not focusing on operations or infrastructure provisioning, the time it takes 
 In this workshop, we would be building a fullstack serverless mobile group chat application using
 
 - [AWS AppSync](https://aws.amazon.com/appsync/)
-- GraphQl
-- Cloud Development Kit(CDK)
-- Typescript
-- Amplify Flutter.
+- [GraphQl](https://graphql.org/)
+- [Cloud Development Kit(CDK)](https://aws.amazon.com/cdk/)
+- [Typescript](https://www.typescriptlang.org/)
+- [AWS Amplify](https://docs.amplify.aws/start/q/integration/flutter/)
+- [Flutter](https://flutter.dev/)
 
 ## AWS AppSync
 
-Aws AppSync allows developers to easily implement engaging real-time application experiences by automatically publishing data updates to subscribed API clients via serverless WebSockets connections
+AWS AppSync allows developers to easily implement engaging real-time application experiences by automatically publishing data updates to subscribed API clients via serverless WebSockets connections.
+With AWS AppSync, you can build APIs that support real-time data via WebSockets, so that your applications always have the most up-to-date information. AppSync also integrates well with core application features, such as authentication and authorization, so that you can focus on building the core functionality of your application.
+
+Developers using AppSync can leverage
+
+- AppSync real-time capabilities.
+- Offline data synchronization.
+- Built-in server-side caching.
+- Fine-grained access control.
+- Security.
+- Support for business logic in the API layer using GraphQL resolvers, and more.
+
+## GraphQl
+
+GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data. GraphQL provides a complete and understandable description of the data in your API, giving clients the power to ask for exactly what they need and nothing more.
+
+## Cloud Development Kit(CDK)
+
+CDK is an infrastructure as Code framework that helps you rapidly define your cloud resources using modern languages such as TypeScript, JavaScript, Python, Java, C#/. Net, and Go.
+
+## AWS Amplify
+
+Learn how to use Amplify to develop and deploy cloud-powered mobile and web apps.
+
+## Flutter
+
+Flutter is an open source framework by Google for building beautiful, natively compiled, multi-platform applications from a single codebase.
+
+Flutter transforms the app development process. Build, test, and deploy beautiful mobile, web, desktop, and embedded apps from a single codebase
 
 Cloud providers
 
