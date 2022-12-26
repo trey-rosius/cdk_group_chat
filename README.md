@@ -79,6 +79,10 @@ Flutter transforms the app development process. Build, test, and deploy beautifu
 - Get Groups a user belongs to.
 - Get all groups created by user.
 
+# Solutions Architecture
+
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/groupChat_transparent.png)
+
 ### USER
 
 - Create User Account
