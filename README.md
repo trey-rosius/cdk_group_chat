@@ -1,10 +1,11 @@
 # Modern Serverless Application Development with AWS Amplify,Flutter, GraphQL,CDK and Typescript
 
-Focusing on the business logic and how your application brings value to end users, with little to no attention as to how the servers are running your application is the new and recommended way by which developers are building serverless applications.
+Serverless computing is the most recent and recommended approach to building modern cloud applications.
+Serverless enables developers to focuse on the business logic and how their application brings value to end users, rather than on configuration and operations of the servers running their applications.
 
 By not focusing on operations or infrastructure provisioning, the time it takes for an application to move from prototype to production is cut in half. Iteration is rapid, user feedback is quick, leading to significant app improvements.
-
-In this workshop, we would be building a fullstack serverless mobile group chat application using
+Let's take a look at a step by step guide on how to build a fullstack serverless mobile group chat application.
+Here's a list of frameworks and languages we would be using in-order to accomplish this task.
 
 - [AWS AppSync](https://aws.amazon.com/appsync/)
 - [GraphQl](https://graphql.org/)
@@ -45,14 +46,38 @@ Flutter is an open source framework by Google for building beautiful, natively c
 
 Flutter transforms the app development process. Build, test, and deploy beautiful mobile, web, desktop, and embedded apps from a single codebase
 
-Cloud providers
+## What you'll learn
 
-- defined all frameworks and services used to create this app
-- why building modern cloud apps are essential
-- Design Decisions. For Example, why multiple stacks
-- why CDK as IaC
+### Backend
+
+- How to create a nested stack architecture using CDK.
+- How to create a graphql API using AWS Appsync and CDK.
+- How to secure(Authenticate and Authorize) the API using AWS Cognito.
+- How to design a single table DynamoDB.
+- How to implement Nested and pipeline resolvers using VTL.
+- How to implement Direct Lambda resolvers.
+- How to properly log events flowing through your application.
+- How to implement a CI/CD pipeline to deploy your cdk application.
+
+### Frontend
+
+- How to create a full fledged flutter application to consume a GraphQL Api using AWS Amplify.
+  This would involve
+- Implementing Authentication mechanisms such as Sign in with Google, Sign in with username and password.
+- Implementing Image uploads
+- Implementing several screens to show case the complete group chat
+- Implementing State Management using Provider.
 
 ## Access Patterns
+
+- Create/Update/Delete User Accounts.
+- Create/Update/Delete groups.
+- Add a users to a group.
+- Send Message in group.
+- Typing Indicator when a group member is typing.
+- Get all messages per group.
+- Get Groups a user belongs to.
+- Get all groups created by user.
 
 ### USER
 
