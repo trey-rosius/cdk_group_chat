@@ -13,7 +13,7 @@ export const handler: AppSyncResolverHandler<
   Message
 > = async (event) => {
   const documentClient = new DynamoDB.DocumentClient();
-  let tableName = process.env.GroupChat_DB;
+  let tableName = process.env.GroupChat_DB; 
   const createdOn = Date.now();
   const id: string = uuid();
   if (tableName === undefined) {
