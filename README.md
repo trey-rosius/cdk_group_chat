@@ -73,7 +73,7 @@ Flutter transforms the app development process. Build, test, and deploy beautifu
 - Users
 - Groups
 - Messages
-- Typing
+- Typing(typing indicator)
 
 ## Relationship Between Entities
 
@@ -99,6 +99,16 @@ Groups and Messages share a one to many relationship.
 
 A group can have many messages. But a message can belong only to one group.
 
+#### Users and Messages
+
+Users and Messages share a one to many relationship.
+
+A user can have many messages. A message belongs to one user.
+
+#### Users and Typing
+
+Users and typing share a one to one relationship.
+
 ## Access Patterns
 
 - Create/Update/Delete User Accounts.
@@ -110,11 +120,11 @@ A group can have many messages. But a message can belong only to one group.
 - Get Groups a user belongs to.
 - Get all groups created by user.
 
-# Solutions Architecture
+## Solutions Architecture
 
 ![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/groupChat_transparent.png)
 
-### Single Table Database Design
+## Database Model
 
 We can model the application's entities by defining seperate tables as shown below
 
