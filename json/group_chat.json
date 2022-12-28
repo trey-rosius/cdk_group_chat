@@ -1,0 +1,507 @@
+{
+  "ModelName": "Group Chat",
+  "ModelMetadata": {
+    "Author": "Rosius Ndimofor",
+    "DateCreated": "May 17, 2022, 07:00 PM",
+    "DateLastModified": "Oct 31, 2022, 05:19 PM",
+    "Description": "A data model for a group chat",
+    "AWSService": "Amazon DynamoDB",
+    "Version": "3.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "group_chat",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "PK",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "SK",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "entity",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "userId",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "groupId",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "messageId",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "username",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "group_name",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "profile_pic",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "user_count",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "msg_text",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI1PK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI1SK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI2PK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI2SK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "typing",
+          "AttributeType": "BOOL"
+        },
+        {
+          "AttributeName": "GSI3PK",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "GSI3SK",
+          "AttributeType": "S"
+        }
+      ],
+      "TableFacets": [
+        {
+          "FacetName": "group",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "PK",
+            "SortKeyAlias": "SK"
+          },
+          "TableData": [
+            {
+              "PK": {
+                "S": "GROUP#123456"
+              },
+              "SK": {
+                "S": "GROUP#123456"
+              },
+              "entity": {
+                "S": "GROUP"
+              },
+              "groupId": {
+                "S": "123456"
+              },
+              "group_name": {
+                "S": "The Big Steppers"
+              },
+              "GSI1PK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "GSI1SK": {
+                "S": "GROUP#123456"
+              }
+            },
+            {
+              "PK": {
+                "S": "GROUP#654321"
+              },
+              "SK": {
+                "S": "GROUP#654321"
+              },
+              "entity": {
+                "S": "GROUP"
+              },
+              "groupId": {
+                "S": "654321"
+              },
+              "group_name": {
+                "S": "Jokers"
+              },
+              "GSI1PK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "GSI1SK": {
+                "S": "GROUP#654321"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "entity",
+            "groupId",
+            "group_name",
+            "GSI1PK",
+            "GSI1SK"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        },
+        {
+          "FacetName": "user",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "PK",
+            "SortKeyAlias": "SK"
+          },
+          "TableData": [
+            {
+              "PK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "SK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "entity": {
+                "S": "USER"
+              },
+              "userId": {
+                "S": "treyrosius@gmail.com"
+              },
+              "username": {
+                "S": "rosius"
+              },
+              "profile_pic": {
+                "S": "rosius.jpg"
+              }
+            },
+            {
+              "PK": {
+                "S": "USER#test@gmail.com"
+              },
+              "SK": {
+                "S": "USER#test@gmail.com"
+              },
+              "entity": {
+                "S": "USER"
+              },
+              "userId": {
+                "S": "test@gmail.com"
+              },
+              "username": {
+                "S": "test"
+              },
+              "profile_pic": {
+                "S": "test.jpg"
+              }
+            },
+            {
+              "PK": {
+                "S": "USER#steverogers@gmail.com"
+              },
+              "SK": {
+                "S": "USER#steverogers@gmail.com"
+              },
+              "entity": {
+                "S": "USER"
+              },
+              "userId": {
+                "S": "steverogers@gmail.com"
+              },
+              "username": {
+                "S": "steve "
+              },
+              "profile_pic": {
+                "S": "steverogers.jpg"
+              }
+            },
+            {
+              "PK": {
+                "S": "USER#ro@gmail.com"
+              },
+              "SK": {
+                "S": "USER#ro@gmail.com"
+              },
+              "entity": {
+                "S": "USER"
+              },
+              "userId": {
+                "S": "ro@gmail.com"
+              },
+              "username": {
+                "S": "ro"
+              },
+              "profile_pic": {
+                "S": "ro.jpg"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "entity",
+            "userId",
+            "username",
+            "profile_pic"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        },
+        {
+          "FacetName": "message",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "PK",
+            "SortKeyAlias": "SK"
+          },
+          "TableData": [
+            {
+              "PK": {
+                "S": "MESSAGE#001"
+              },
+              "SK": {
+                "S": "MESSAGE#001"
+              },
+              "userId": {
+                "S": "treyrosius@gmail.com"
+              },
+              "groupId": {
+                "S": "123456"
+              },
+              "messageId": {
+                "S": "001"
+              },
+              "msg_text": {
+                "S": "Hi, Thanks for having me in this group"
+              },
+              "GSI2PK": {
+                "S": "GROUP#123456"
+              },
+              "GSI2SK": {
+                "S": "TIMESTAMP#001"
+              }
+            },
+            {
+              "PK": {
+                "S": "MESSAGE#002"
+              },
+              "SK": {
+                "S": "MESSAGE#002"
+              },
+              "userId": {
+                "S": "treyrosius@gmail.com"
+              },
+              "groupId": {
+                "S": "123456"
+              },
+              "messageId": {
+                "S": "002"
+              },
+              "msg_text": {
+                "S": "What's the purpose of this group"
+              },
+              "GSI2PK": {
+                "S": "GROUP#123456"
+              },
+              "GSI2SK": {
+                "S": "TIMESTAMP#002"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "entity",
+            "userId",
+            "groupId",
+            "messageId",
+            "msg_text",
+            "GSI2PK",
+            "GSI2SK"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        },
+        {
+          "FacetName": "groupUsers",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "PK",
+            "SortKeyAlias": "SK"
+          },
+          "TableData": [
+            {
+              "PK": {
+                "S": "GROUP#123456"
+              },
+              "SK": {
+                "S": "USER#ro@gmail.com"
+              },
+              "userId": {
+                "S": "ro@gmail.com"
+              },
+              "groupId": {
+                "S": "123456"
+              },
+              "GSI3PK": {
+                "S": "USER#ro@gmail.com"
+              },
+              "GSI3SK": {
+                "S": "GROUP#123456"
+              }
+            },
+            {
+              "PK": {
+                "S": "GROUP#123456"
+              },
+              "SK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "userId": {
+                "S": "treyrosius@gmail.com"
+              },
+              "groupId": {
+                "S": "123456"
+              },
+              "GSI3PK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "GSI3SK": {
+                "S": "GROUP#123456"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "entity",
+            "userId",
+            "groupId",
+            "GSI3PK",
+            "GSI3SK"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        },
+        {
+          "FacetName": "typing",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "PK",
+            "SortKeyAlias": "SK"
+          },
+          "TableData": [
+            {
+              "PK": {
+                "S": "USER#treyrosius@gmail.com"
+              },
+              "SK": {
+                "S": "GROUP#123456#TYPING"
+              },
+              "entity": {
+                "S": "TYPING"
+              },
+              "userId": {
+                "S": "treyrosius@gmail.com"
+              },
+              "groupId": {
+                "S": "123456"
+              },
+              "typing": {
+                "BOOL": true
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "entity",
+            "userId",
+            "groupId",
+            "typing"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        }
+      ],
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "getAllGroupsCreatedByUser",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "GSI1PK",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "GSI1SK",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        },
+        {
+          "IndexName": "getMessagesPerGroup",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "GSI2PK",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "GSI2SK",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        },
+        {
+          "IndexName": "getAllGroupsUserBelongTo",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "GSI3PK",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "GSI3SK",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "AutoScalingRead": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        },
+        "AutoScalingWrite": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        }
+      }
+    }
+  ]
+}

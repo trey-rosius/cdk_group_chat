@@ -148,6 +148,11 @@ That's a design decision i'm confortable with. Let's proceed.
 
 ![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/single_table.png)
 
+Here's the database design. Feel free to downlaod it and use in the NoSQL Workbench.
+[NoSQL Workbench JSON Model](https://github.com/trey-rosius/cdk_group_chat/raw/master/json/group_chat.json)
+
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/no_sql_workbench.png)
+
 - Create User Account
 
 ```
