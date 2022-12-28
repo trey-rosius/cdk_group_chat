@@ -55,7 +55,7 @@ type User @aws_cognito_user_pools {
   email: String!
   profilePicUrl: String!
   updatedOn: AWSDateTime
-  createdOn: AWSDateTime!
+  createdOn: AWSDateTime
 }
 
 input UserInput @aws_cognito_user_pools {
