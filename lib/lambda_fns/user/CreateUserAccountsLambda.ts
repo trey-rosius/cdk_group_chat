@@ -31,32 +31,21 @@ export const handler: AppSyncResolverHandler<
       {
         Put: {
           Item: {
-            id: {
-              S: id,
-            },
+            id: id,
 
-            ENTITY: {
-              S: "USER",
-            },
-            PK: {
-              S: `USER#${username}`,
-            },
-            SK: {
-              S: `USER#${username}`,
-            },
-            username: {
-              S: username,
-            },
-            email: {
-              S: email,
-            },
-            profilePicUrl: {
-              S: profilePicUrl,
-            },
+            ENTITY: "USER",
 
-            createdOn: {
-              N: createdOn,
-            },
+            PK: `USER#${username}`,
+
+            SK: `USER#${username}`,
+
+            username: username,
+
+            email: email,
+
+            profilePicUrl: profilePicUrl,
+
+            createdOn: createdOn,
           },
           TableName: tableName,
           ConditionExpression: "attribute_not_exists(PK)",
@@ -65,27 +54,17 @@ export const handler: AppSyncResolverHandler<
       {
         Put: {
           Item: {
-            id: {
-              S: id,
-            },
+            id: id,
 
-            ENTITY: {
-              S: "USER",
-            },
-            PK: {
-              S: `USEREMAIL#${email}`,
-            },
-            SK: {
-              S: `USEREMAIL#${email}`,
-            },
+            ENTITY: "USER",
 
-            email: {
-              S: email,
-            },
+            PK: `USEREMAIL#${email}`,
 
-            createdOn: {
-              N: createdOn,
-            },
+            SK: `USEREMAIL#${email}`,
+
+            email: email,
+
+            createdOn: createdOn,
           },
           TableName: tableName,
           ConditionExpression: "attribute_not_exists(PK)",

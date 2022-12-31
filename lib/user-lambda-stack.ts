@@ -40,7 +40,11 @@ export class UserLamdaStacks extends Stack {
       codeSigningConfig,
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: "handler",
-      entry: path.join(__dirname, "lambda_fns/user", "app.ts"),
+      entry: path.join(
+        __dirname,
+        "lambda_fns/user",
+        "CreateUserAccountsLambda.ts"
+      ),
 
       memorySize: 1024,
     });
@@ -83,6 +87,7 @@ export class UserLamdaStacks extends Stack {
     );
     createUserAccountResolver.addDependsOn(apiSchema);
     groupChatTable.grantFullAccess(userLambda);
+
     userLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);
   }
 }
