@@ -154,84 +154,104 @@ Here's the database model. Feel free to downlaod it and use in the NoSQL Workben
 
 ![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/no_sql_workbench.png)
 
-- Create User Account
+## Create CDK Project
 
-```
-PK: USER#USERID
-SK: USER#USERID
-```
+From the command line interface(Terminal), create and change directory into the newly created folder using
 
-- Update User Account
+`mkdir cdkGroupChatApp && cd $_`
 
-```
-PK: USER#USERID
-SK: USER#USERID
-```
+Within the newly created folder, initialize a typescript cdk project using the command
 
-### GROUP
+`cdk init --language=typescript`
 
-- Create Group(anyone can create a group)
+Once created, open up the app your IDE and lets proceed.
 
-```
-PK: GROUP#GROUPID
-SK: GROUP#GROUPID
-GSI1PK: USER#USERID
-GSI1SK: GROUP#GROUPID
+### Dependencies
 
-```
+With your project opened up in the IDE, click on the `package.json` file and add these dependencies to the `devDependencies` section.
 
-- Add Users to Group
-
-```
-PK:GROUP#GROUPID
-SK:USER#USERID
-
+```json
+    "@aws-lambda-powertools/logger": "^1.2.1",
+    "@aws-lambda-powertools/tracer": "^1.2.1",
+    "@graphql-codegen/cli": "^2.13.1",
+    "@graphql-codegen/typescript": "^2.7.3",
+    "@types/aws-lambda": "^8.10.106",
+    "aws-sdk": "^2.1153.0",
+    "ksuid": "^2.0.0",
 ```
 
-- Get all groups created by user
-  We'll use a GSI here
-  GSI => getAllGroupsCreatedByUser
-  use `begins_with`
+We’ll be using lambda-powertools for typescript library for structured logging and tracing.
 
-```
-GSI1PK:USER#USERID
-GSI1SK:GROUP#
-```
+Feel free to read more about the library here [https://awslabs.github.io/aws-lambda-powertools-typescript/latest/](https://awslabs.github.io/aws-lambda-powertools-typescript/latest/)
 
-### MESSAGE
+We'll be using both lambda and vtl as our Appsync resolvers. When using lambda(with Typescript),we want our typescript types to correspond with the graphql schema. Doing this manually is tedious, prone to error and is basically doing the same job twice!.
 
-- Send message
+These 3 libraries would help us generate GraphQl types into our code automatically.
 
-```
-PK:MESSAGE#MESSAGEID
-SK:MESSAGE#MESSAGEID
-GSI2PK:GROUP#GROUPID
-GSI2SK: MESSAGE#MESSAGEID
+```json
+    "@graphql-codegen/cli": "^2.13.1",
+    "@graphql-codegen/typescript": "^2.7.3",
+    "@types/aws-lambda": "^8.10.106",
 ```
 
-- Get messages per group
-  We'll use a GSI to get these
-  GSI => getMessagesPerGroup
-  Use `begins_with`
+The first two packages belong to the graphql-code-generator suite. The first one is the base CLI, while the second one is the plugin that generates TypeScript code from a GraphQL schema.
 
+`@types/aws-lambda` is a collection of TypeScript types for AWS Lambda. It includes all sorts of Lambda event type definitions (API gateway, S3, SNS, etc.), including one for AppSync resolvers (AppSyncResolverHandler). We'll use that last one later when we build our resolvers.
+
+`ksuid` stands for K-Sortable Unique Identifier. Its an efficient, comprehensive, battle-tested Go library for generating and parsing a specific kind of globally unique identifier called a *KSUID.*
+
+KSUID are naturally ordered by generation time, meaning they can be sorted.
+
+Don't forget to run `npm i` to install all the dependencies.
+
+### Create and configure graphql-codegen
+
+Create a file in the root directory of your project called `codegen.yml` and type in the following code.
+
+```yaml
+overwrite: true
+schema:
+  - schema.graphql #your schema file
+
+generates:
+  appsync.d.ts:
+    plugins:
+      - typescript
 ```
-GSI2PK: GROUP#GROUPID
-GSI2SK: MESSAGE#
 
+This tells `graphql-codegen` which schema file(s) it should use (in the example: schema.graphql), what plugin (typescript) and where the output should be placed (appsync.d.ts).
+
+### Support for AWS Scalars
+
+Since we are using AWS Appsync to build out the GraphQL API, we'll be making use of [AWS Appsync Scalars](https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html) which aren't available in the default GraphQL Language.
+
+Therefore we need to tell `graphql-codegen` how to handle them.
+
+Create another file in your project's root directory called `appsync.graphql` and add these scalars to it.
+
+```graphql
+scalar AWSDate
+scalar AWSTime
+scalar AWSDateTime
+scalar AWSTimestamp
+scalar AWSEmail
+scalar AWSJSON
+scalar AWSURL
+scalar AWSPhone
+scalar AWSIPAddress
 ```
 
-### Typing indicator
+> Don't place these types in the same file as your main schema. You only need them for code generation and they should not get into your deployment package to AWS AppSync
 
-PK:USER#USERID
-SK:GROUP#GROUPID#TYPING
+Learn more about the library here [https://github.com/segmentio/ksuid](https://github.com/segmentio/ksuid)
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+### Create User Account
 
-## Useful commands
+The User entity is unique on 2 attributes( username + email address).
 
-- `npm run build` compile typescript to js
-- `npm run watch` watch for changes and compile
-- `npm run test` perform the jest unit tests
-- `cdk deploy` deploy this stack to your default AWS account/region
-- `cdk diff` compare deployed stack with current state
-- `cdk synth` emits the synthesized CloudFormation template
+In-order to maintain this uniqueness, we'll assign 2 composite keys to the User Entity.
+`PK`: `USER#username`
+`SK`: `USER#username`
+
+`PK`:`USEREMAIL#email`
+`SK`:`USEREMAIL#email`
