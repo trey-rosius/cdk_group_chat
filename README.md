@@ -439,7 +439,7 @@ const groupChatStack = new GroupChatStack(app, "GroupChatStack", {
 });
 ```
 
-### Group Chat Stack
+## Group Chat Stack
 
 In this stack construct, we are going to provision the following infrastructure resources
 
@@ -679,3 +679,170 @@ new CfnOutput(this, "GraphQLAPI URL", {
 ```
 
 Checkout the complete code here [group_chat-stack.ts](lib/group_chat-stack.ts)
+
+## User Lambda Stack
+
+In this stack, we’ll define all infrastructure related to the user entity.
+
+For this tutorial, we have 2 user related endpoints defined in the `schema.graphql` file located in the `schema` folder.
+
+But we will implement `createUserAccount` endpoint only.
+
+```graphql
+createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
+updateUserAccount(input: UpdateUserInput!): User! @aws_cognito_user_pools
+```
+
+Create a file called `user-lambda-stack.ts` in the lib folder. When we created the main stack(group_chat_stack) above, we made a couple of resources public, meaning they could be shared and used within the other stacks.
+
+```typescript
+  public readonly groupChatTable: Table;
+  public readonly groupChatGraphqlApi: CfnGraphQLApi;
+  public readonly apiSchema: CfnGraphQLSchema;
+  public readonly groupChatTableDatasource: CfnDataSource;
+```
+
+At the top of the `user-lambda-stack.ts` file, create an interface which extends `StackProps` and define the 3 resources we intend importing from the main stack.
+
+```typescript
+interface UserLambdaStackProps extends StackProps {
+  groupChatGraphqlApi: CfnGraphQLApi;
+  apiSchema: CfnGraphQLSchema;
+  groupChatTable: Table;
+}
+```
+
+Then, in the constructor for class `UserLambdaStacks`, change `StackProps` to `UserLambdaStackProps`.
+
+So now, here’s how the `user-lambda-stack` looks like
+
+```typescript
+interface UserLambdaStackProps extends StackProps {
+  groupChatGraphqlApi: CfnGraphQLApi;
+  apiSchema: CfnGraphQLSchema;
+  groupChatTable: Table;
+}
+export class UserLamdaStacks extends Stack {
+  constructor(scope: Construct, id: string, props: UserLambdaStackProps) {
+    super(scope, id, props);
+
+    const { groupChatGraphqlApi, groupChatTable, apiSchema } = props;
+  }
+}
+```
+
+Notice that we’ve also de-structured the `props` to get all the resources defined in the interface.
+
+We are going to be using a lambda resolver to resolve all endpoints for this user entity.
+
+Let’s go ahead and get started
+
+### User Lambda Resolver
+
+Inside the `lib` folder, create a folder called `lambda-fns`. This folder would contain code files for all our lambda functions and entities.
+
+Inside the `lambda-fns` folder, create another folder called `user`.
+Create a file called `CreateUserAccountsLambda.ts`, which would serves as the lambda handler for the `createUserAccount` endpoint.
+
+Inside the `user_lambda_stack.ts` file, defined your lambda resource as follows
+
+```typescript
+const signingProfile = new signer.SigningProfile(this, "SigningProfile", {
+  platform: signer.Platform.AWS_LAMBDA_SHA384_ECDSA,
+});
+
+const codeSigningConfig = new lambda.CodeSigningConfig(
+  this,
+  "CodeSigningConfig",
+  {
+    signingProfiles: [signingProfile],
+  }
+);
+const userLambda = new NodejsFunction(this, "GroupChatUserHandler", {
+  tracing: Tracing.ACTIVE,
+  codeSigningConfig,
+  runtime: lambda.Runtime.NODEJS_16_X,
+  handler: "handler",
+  entry: path.join(__dirname, "lambda_fns/user", "CreateUserAccountsLambda.ts"),
+
+  memorySize: 1024,
+});
+```
+
+The first endpoint we are going to implement is the createUserAccount endpoint, which takes input.
+
+```graphql
+input UserInput @aws_cognito_user_pools {
+  username: String!
+  email: String!
+  profilePicUrl: String!
+}
+```
+
+It outputs
+
+```graphql
+type User @aws_cognito_user_pools {
+  id: ID!
+  username: String!
+  email: String!
+  profilePicUrl: String!
+  updatedOn: AWSDateTime
+  createdOn: AWSDateTime
+}
+```
+
+`@aws_cognito_user_pools ` is an appsync directives which enforces security, by making sure only logged in(authorized) users can access that resource.
+
+Also define the lambda datasource and resolver resources as follows inside the user stack.
+
+```typescript
+const lambdaDataSources: CfnDataSource = new CfnDataSource(
+  this,
+  "UserLambdaDatasource",
+  {
+    apiId: groupChatGraphqlApi.attrApiId,
+    name: "UserLambdaDatasource",
+    type: "AWS_LAMBDA",
+
+    lambdaConfig: {
+      lambdaFunctionArn: userLambda.functionArn,
+    },
+    serviceRoleArn: appsyncLambdaRole.roleArn,
+  }
+);
+
+const createUserAccountResolver: CfnResolver = new CfnResolver(
+  this,
+  "createUserAccountResolver",
+  {
+    apiId: groupChatGraphqlApi.attrApiId,
+    typeName: "Mutation",
+    fieldName: "createUserAccount",
+    dataSourceName: lambdaDataSources.attrName,
+  }
+);
+//Grant permissions and add dependsOn
+
+createUserAccountResolver.addDependsOn(apiSchema);
+groupChatTable.grantFullAccess(userLambda);
+//set the database table name as an environment variable for the lambda function
+userLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);
+```
+
+Here's the [complete code](lib/user_lambda_stack.ts) for this file.
+
+Now, let's go ahead and look at the code to create a user account in the `CreateUserAccountsLambda.ts` file.
+
+Remember we had used `codegen` to generate types for our graphql schema.
+
+So we have to import the mutation input(`MutationCreateUserAccountArgs`) for `createUserAccount` and the output(`User`) from `appsync.d.ts`.
+
+Don't forget that the enpoint looks like this
+
+```graphql
+
+createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
+```
+
+`import { User, MutationCreateUserAccountArgs } from "../../../appsync";`
