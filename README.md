@@ -202,6 +202,8 @@ The first two packages belong to the graphql-code-generator suite. The first one
 
 KSUID are naturally ordered by generation time, meaning they can be sorted.
 
+Learn more about the library here [https://github.com/segmentio/ksuid](https://github.com/segmentio/ksuid)
+
 Don't forget to run `npm i` to install all the dependencies.
 
 ### Create and configure graphql-codegen
@@ -211,7 +213,7 @@ Create a file in the root directory of your project called `codegen.yml` and typ
 ```yaml
 overwrite: true
 schema:
-  - schema.graphql #your schema file
+  - schema/schema.graphql #your schema file
 
 generates:
   appsync.d.ts:
@@ -241,17 +243,332 @@ scalar AWSPhone
 scalar AWSIPAddress
 ```
 
-> Don't place these types in the same file as your main schema. You only need them for code generation and they should not get into your deployment package to AWS AppSync
+## N.B
 
-Learn more about the library here [https://github.com/segmentio/ksuid](https://github.com/segmentio/ksuid)
+> ⚠️ Don't place these types in the same file as your main schema. You only need them for code generation and they should not get into your deployment package to AWS AppSync
 
-### Create User Account
+We also need to tell `graphql-codegen` how to map these scalars to TypeScript. For that, we will modify the `codegen.yml` file and the following sections.
 
-The User entity is unique on 2 attributes( username + email address).
+```yaml
+schema:
+  - schema/schema.graphql
+  - appsync.graphql # 👈 add this
 
-In-order to maintain this uniqueness, we'll assign 2 composite keys to the User Entity.
-`PK`: `USER#username`
-`SK`: `USER#username`
+# and this 👇
+config:
+  scalars:
+    AWSJSON: string
+    AWSDate: string
+    AWSTime: string
+    AWSDateTime: string
+    AWSTimestamp: number
+    AWSEmail: string
+    AWSURL: string
+    AWSPhone: string
+    AWSIPAddress: string
+```
 
-`PK`:`USEREMAIL#email`
-`SK`:`USEREMAIL#email`
+### Generate the Code
+
+In-order to generate the code, create a folder called `schema` and then, create a file called `schema.graphql` within that folder.
+
+Type in the following code. This is the graphql schema for our api. I'll explain each line as we move along.
+
+```graphql
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Subscription {
+  typingIndicator: TypingIndicator
+    @aws_subscribe(mutations: ["typingIndicator"])
+  newMessage: Message @aws_subscribe(mutations: ["sendMessage"])
+}
+
+type Mutation {
+  createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
+  updateUserAccount(input: UpdateUserInput!): User! @aws_cognito_user_pools
+
+  createGroup(input: GroupInput!): Group! @aws_cognito_user_pools
+  addUserToGroup(userId: String!, groupId: String!): Boolean!
+    @aws_cognito_user_pools
+  sendMessage(input: MessageInput!): Message! @aws_cognito_user_pools
+
+  typingIndicator(
+    userId: String!
+    groupId: String!
+    typing: Boolean!
+  ): TypingIndicator! @aws_cognito_user_pools
+}
+
+type TypingIndicator @aws_cognito_user_pools {
+  userId: String!
+  groupId: String!
+  typing: Boolean!
+}
+type Query {
+  getAllGroupsCreatedByUser(
+    userId: String!
+    limit: Int
+    nextToken: String
+  ): GroupResult! @aws_cognito_user_pools
+  getAllMessagesPerGroup(
+    groupId: String!
+    limit: Int
+    nextToken: String
+  ): MessageResult! @aws_cognito_user_pools
+  getGroupsUserBelongsTo(
+    userId: String!
+    limit: Int
+    nextToken: String
+  ): UserGroupResult! @aws_cognito_user_pools
+}
+
+type User @aws_cognito_user_pools {
+  id: ID!
+  username: String!
+  email: String!
+  profilePicUrl: String!
+  updatedOn: AWSDateTime
+  createdOn: AWSDateTime
+}
+
+input UserInput @aws_cognito_user_pools {
+  username: String!
+  email: String!
+  profilePicUrl: String!
+}
+
+input UpdateUserInput @aws_cognito_user_pools {
+  id: ID!
+  username: String!
+  profilePicUrl: String!
+}
+
+type Message @aws_cognito_user_pools {
+  id: ID!
+  userId: String!
+  user: User
+  groupId: String!
+  messageText: String!
+  createdOn: AWSTimestamp!
+}
+
+type MessageResult @aws_cognito_user_pools {
+  items: [Message!]!
+  nextToken: String
+}
+input MessageInput @aws_cognito_user_pools {
+  userId: String!
+  groupId: String!
+  messageText: String!
+}
+
+type UserGroup @aws_cognito_user_pools {
+  userId: String!
+  group: Group!
+  createdOn: AWSTimestamp!
+}
+
+type Group @aws_cognito_user_pools {
+  id: ID!
+  userId: String!
+  name: String!
+  description: String!
+  createdOn: AWSTimestamp!
+}
+
+input GroupInput {
+  userId: String!
+  name: String!
+  description: String!
+}
+type GroupResult @aws_cognito_user_pools {
+  items: [Group!]! @aws_cognito_user_pools
+  nextToken: String
+}
+type UserGroupResult @aws_cognito_user_pools {
+  items: [UserGroup!]! @aws_cognito_user_pools
+  nextToken: String
+}
+```
+
+Save the file and run the following command in your cli
+
+`graphql-codegen`
+
+Add `"codegen": "graphql-codegen"` to your package.json under the "scripts" section, and use `npm run codegen` command.
+
+```json
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "codegen": "graphql-codegen"  👈 --- Add this
+  },
+```
+
+If you look in your working directory, you should now see an appsync.d.ts file that contains your generated types.
+
+### Application Stacks
+
+We are going to have a total of 4 stacks. Let me apologize in advance for the stack names. Please feel free to give yours better stack names.
+
+- The main application Stack(group_chat_stack). Defines the Appsync API, Database, Datasource etc for the complete app
+- User Lambda Stack (For User Resources)
+- Group Lambda Stack (For Group Resources)
+- Message Lambda Stack (For Message Resources)
+
+To provision infrastructure resources, all constructs that represent AWS resources must be defined, directly or indirectly, within the scope of a Stack construct.
+
+An App is a container for one or more stacks: it serves as each stack’s scope. Stacks within a single App can easily refer to each others’ resources (and attributes of those resources).
+
+The AWS CDK infers dependencies between stacks so that they can be deployed in the correct order. You can deploy any or all of the stacks defined within an app at with a single `cdk deploy` or `cdk deploy --all` command.
+
+Our app is defined in the `bin` folder, while stacks are in the `lib` folder.
+
+Add your `account` and `region` to the `env` object in the cdk app file located in the `bin` folder.
+
+```typescript
+const app = new cdk.App();
+const groupChatStack = new GroupChatStack(app, "GroupChatStack", {
+  env: { account: "13xxxxxxxxxx", region: "us-east-2" },
+});
+```
+
+### Group Chat Stack
+
+In this stack construct, we are going to provision the following infrastructure resources
+
+- Cognito UserPool
+- AppSync GraphQL Api
+- DynamoDb Table
+- CloudWatch and DynamoDB role managed Policies.
+
+Inside `group-chat-stack.ts` file located in `lib` folder, we’ll defined constructs for the above resources. And because we’ll be using the resources in other stacks, we have to expose the resources somehow. We’ll see that in a bit.
+
+### Cognito UserPool
+
+Let’s define the userpool and the userpool client
+
+```typescript
+/**
+ * UserPool and UserPool Client
+ */
+const userPool: UserPool = new cognito.UserPool(
+  this,
+  "GroupChatCognitoUserPool",
+  {
+    selfSignUpEnabled: true,
+    accountRecovery: cognito.AccountRecovery.PHONE_AND_EMAIL,
+    userVerification: {
+      emailStyle: cognito.VerificationEmailStyle.CODE,
+    },
+    autoVerify: {
+      email: true,
+    },
+    standardAttributes: {
+      email: {
+        required: true,
+        mutable: true,
+      },
+    },
+  }
+);
+
+const userPoolClient: UserPoolClient = new cognito.UserPoolClient(
+  this,
+  "GroupChatUserPoolClient",
+  {
+    userPool,
+  }
+);
+```
+
+Let’s go ahead to define
+
+- GraphQL API
+- GraphQL Schema
+
+Since we’ll be needing the graphql api and datasource construct definitions in other stacks, we need to expose them.
+
+Here’s how it’s done. Firstly, initialize your construct like so
+
+```typescript
+export class GroupChatStack extends Stack {
+  public readonly groupChatGraphqlApi: CfnGraphQLApi;
+  public readonly apiSchema: CfnGraphQLSchema;
+
+```
+
+Then define them like so
+
+```typescript
+/**
+ * CloudWatch Role
+ */
+// give appsync permission to log to cloudwatch by assigning a role
+
+const cloudWatchRole = new iam.Role(this, "appSyncCloudWatchLogs", {
+  assumedBy: new iam.ServicePrincipal("appsync.amazonaws.com"),
+});
+
+cloudWatchRole.addManagedPolicy(
+  iam.ManagedPolicy.fromAwsManagedPolicyName(
+    "service-role/AWSAppSyncPushToCloudWatchLogs"
+  )
+);
+
+/**
+ * GraphQL API
+ */
+this.groupChatGraphqlApi = new CfnGraphQLApi(this, "groupChatGraphqlApi", {
+  name: "groupChat",
+  authenticationType: "API_KEY",
+
+  additionalAuthenticationProviders: [
+    {
+      authenticationType: "AMAZON_COGNITO_USER_POOLS",
+
+      userPoolConfig: {
+        userPoolId: userPool.userPoolId,
+        awsRegion: "us-east-2",
+      },
+    },
+  ],
+  userPoolConfig: {
+    userPoolId: userPool.userPoolId,
+    defaultAction: "ALLOW",
+    awsRegion: "us-east-2",
+  },
+
+  logConfig: {
+    fieldLogLevel: "ALL",
+    cloudWatchLogsRoleArn: cloudWatchRole.roleArn,
+  },
+  xrayEnabled: true,
+});
+
+/**
+ * Graphql Schema
+ */
+
+this.apiSchema = new CfnGraphQLSchema(this, "GroupChatGraphqlApiSchema", {
+  apiId: this.groupChatGraphqlApi.attrApiId,
+  definition: readFileSync("./schema/schema.graphql").toString(),
+});
+```
+
+Security and data protection for your applications is of utmost importance. AWS Appsync provides five ways you can authorize your GraphQL api to interact with it.
+We will be using
+
+- **_API_KEY_**
+  Unauthenticated APIs require more strict throttling than authenticated APIs. One way to control throttling for unauthenticated GraphQL endpoints is through the use of API keys. An API key is a hard-coded value in your application that is generated by the AWS AppSync service when you create an unauthenticated GraphQL endpoint. You can rotate API keys from the console, from the CLI.
+
+- **_Cognito user pools_**
+  This authorization type enforces OIDC tokens provided by Amazon Cognito User Pools. Your application can leverage the users and groups in your user pools and associate these with GraphQL fields for controlling access.
+
+When using Amazon Cognito User Pools, you can create groups that users belong to. This information is encoded in a JWT token that your application sends to AWS AppSync in an authorization header when sending GraphQL operations. You can use GraphQL directives on the schema to control which groups can invoke which resolvers on a field, thereby giving more controlled access to your customers.
