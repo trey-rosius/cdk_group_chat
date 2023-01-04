@@ -412,6 +412,7 @@ Add `"codegen": "graphql-codegen"` to your package.json under the "scripts" sect
 ```
 
 If you look in your working directory, you should now see an appsync.d.ts file that contains your generated types.
+We will go indepth on the file contents as we progress along.
 
 ### Application Stacks
 
@@ -452,7 +453,7 @@ Inside `group-chat-stack.ts` file located in `lib` folder, we’ll defined const
 
 ### Security and Data Protection
 
-Security and data protection for your applications is of utmost importance. AWS Appsync provides five different ways to authorize a GraphQL api to interact with it.
+Security and data protection for your applications is of utmost importance. AWS Appsync provides five different ways to authorize/authenticate a GraphQL api.
 We will be using 2.
 
 - `API_KEY`
@@ -504,7 +505,7 @@ const userPoolClient: UserPoolClient = new cognito.UserPoolClient(
 );
 ```
 
-Let’s go ahead to define
+Let’s go ahead to define the
 
 - GraphQL API
 - GraphQL Schema
@@ -582,7 +583,7 @@ From the code above, we define the `API_KEY` as the default authorizer and `AMAZ
 
 ### DynamoDB for Data Storage
 
-Our dynamoDB has a composite key and 3 Global Secondary Indexes
+Our dynamoDB has a composite key and 3 Global Secondary Indexes(GSI)
 At the top of the `group-chat-stack.ts` file, add these
 
 ```typescript
@@ -686,14 +687,14 @@ In this stack, we’ll define all infrastructure related to the user entity.
 
 For this tutorial, we have 2 user related endpoints defined in the `schema.graphql` file located in the `schema` folder.
 
-But we will implement `createUserAccount` endpoint only.
+But we will implement the `createUserAccount` endpoint only.
 
 ```graphql
 createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
 updateUserAccount(input: UpdateUserInput!): User! @aws_cognito_user_pools
 ```
 
-Create a file called `user-lambda-stack.ts` in the lib folder. When we created the main stack(group_chat_stack) above, we made a couple of resources public, meaning they could be shared and used within the other stacks.
+Create a file called `user-lambda-stack.ts` in the `lib` folder. When we created the main stack(`group_chat_stack`) above, we made a couple of resources public.Meaning they could be shared and used within the other stacks.
 
 ```typescript
   public readonly groupChatTable: Table;
@@ -735,7 +736,7 @@ Notice that we’ve also de-structured the `props` to get all the resources defi
 
 We are going to be using a lambda resolver to resolve all endpoints for this user entity.
 
-Let’s go ahead and get started
+Let’s continue
 
 ### User Lambda Resolver
 
@@ -769,7 +770,7 @@ const userLambda = new NodejsFunction(this, "GroupChatUserHandler", {
 });
 ```
 
-The first endpoint we are going to implement is the createUserAccount endpoint, which takes input.
+The first endpoint we are going to implement is the `createUserAccount` endpoint, which takes input.
 
 ```graphql
 input UserInput @aws_cognito_user_pools {
@@ -792,7 +793,7 @@ type User @aws_cognito_user_pools {
 }
 ```
 
-`@aws_cognito_user_pools ` is an appsync directives which enforces security, by making sure only logged in(authorized) users can access that resource.
+`@aws_cognito_user_pools ` is an appsync directive that enforces security, by making sure only authorized users can access that resource.
 
 Also define the lambda datasource and resolver resources as follows inside the user stack.
 
@@ -834,15 +835,53 @@ Here's the [complete code](lib/user_lambda_stack.ts) for this file.
 
 Now, let's go ahead and look at the code to create a user account in the `CreateUserAccountsLambda.ts` file.
 
-Remember we had used `codegen` to generate types for our graphql schema.
+Remember we had used `npm run codegen` to generate types for our graphql schema into the `appsync.d.ts` file.
 
-So we have to import the mutation input(`MutationCreateUserAccountArgs`) for `createUserAccount` and the output(`User`) from `appsync.d.ts`.
+Within this file, different types are being generated.
 
-Don't forget that the enpoint looks like this
+Scalars contain all the basic and AWS Custom Scalars.
 
-```graphql
+Full `Query` and `Mutation` types are being defined for `User`, `Message`,`Group` etc.
 
-createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
+`MutationCreateUserAccountArgs ` type describes the input arguments of the `createUserAccount` endpoint.
+`QueryGetAllGroupsCreatedByUserArgs ` type describes the output arguments of the `getAllGroupsCreatedByUser` endpoint.
+
+> 💡Did you notice the name pattern here? Argument types are always named Query[NameOfTheEndpoint]Args and Mutation[NameOfTheEndpoint]Args in PascalCase. This is useful to know when you want to auto-complete types in your IDE.
+
+We are going to be using the `AppSyncResolverHandler` type, which takes two arguments. The first one is the type for the `event.arguments`(`MutationCreateUserAccountArgs`) object, and the second one is the return value of the resolver(`User`).
+
+Let's look at the complete code.
+
+```typescript
+import { Logger } from "@aws-lambda-powertools/logger";
+
+import { AppSyncResolverHandler } from "aws-lambda";
+import { DynamoDB } from "aws-sdk";
+
+//imported generated types
+import { User, MutationCreateUserAccountArgs } from "../../../appsync";
+// utility functions to generate ksuid's and execute dynamodb transactions
+import { uuid, executeTransactWrite } from "../../utils";
+
+const logger = new Logger({ serviceName: "CreateUserAccountsHandler" });
+
+export const handler: AppSyncResolverHandler<
+  MutationCreateUserAccountArgs,
+  User
+> = async (event) => {
+  logger.debug(`appsync event arguments ${JSON.stringify(event)}`);
+
+  const documentClient = new DynamoDB.DocumentClient();
+  let tableName = process.env.GroupChat_DB;
+
+  const createdOn: number = Date.now();
+  const id: string = uuid();
+  if (tableName === undefined) {
+    logger.error(`Couldn't get the table name`);
+    tableName = "groupChatDynamoDBTable";
+  }
+
+  logger.info(`message input info", ${JSON.stringify(event.arguments)}`);
+  const { username, email, profilePicUrl } = event.arguments.input;
+};
 ```
-
-`import { User, MutationCreateUserAccountArgs } from "../../../appsync";`

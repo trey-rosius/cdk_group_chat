@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { GroupChatStack } from "../lib/group_chat-stack";
-import { UserLamdaStacks } from "../lib/user-lambda-stack";
+import { GroupChatStack } from "../lib/group_chat_stack";
+import { UserLamdaStacks } from "../lib/user_lambda_stack";
 import { GroupLamdaStacks } from "../lib/group_lambda_stack";
 import { MessageLamdaStacks } from "../lib/message_lambda_stack";
 
