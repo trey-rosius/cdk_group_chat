@@ -583,7 +583,7 @@ From the code above, we define the `API_KEY` as the default authorizer and `AMAZ
 
 ### DynamoDB for Data Storage
 
-Our dynamoDB has a composite key and 3 Global Secondary Indexes(GSI)
+Our dynamoDB has a composite key(PK and SK) and 3 Global Secondary Indexes(GSI)
 At the top of the `group-chat-stack.ts` file, add these
 
 ```typescript
@@ -681,7 +681,7 @@ new CfnOutput(this, "GraphQLAPI URL", {
 
 Checkout the complete code here [group_chat-stack.ts](lib/group_chat-stack.ts)
 
-## User Lambda Stack
+## User Stack
 
 In this stack, we’ll define all infrastructure related to the user entity.
 
@@ -694,7 +694,7 @@ createUserAccount(input: UserInput!): User! @aws_cognito_user_pools
 updateUserAccount(input: UpdateUserInput!): User! @aws_cognito_user_pools
 ```
 
-Create a file called `user-lambda-stack.ts` in the `lib` folder. When we created the main stack(`group_chat_stack`) above, we made a couple of resources public.Meaning they could be shared and used within the other stacks.
+Create a file called `user-lambda-stack.ts` in the `lib` folder. When we created the main stack(`group_chat_stack`) above, we made a couple of resources public. Meaning they could be shared and used within the other stacks.
 
 ```typescript
   public readonly groupChatTable: Table;
@@ -850,7 +850,15 @@ Full `Query` and `Mutation` types are being defined for `User`, `Message`,`Group
 
 We are going to be using the `AppSyncResolverHandler` type, which takes two arguments. The first one is the type for the `event.arguments`(`MutationCreateUserAccountArgs`) object, and the second one is the return value of the resolver(`User`).
 
-Let's look at the complete code.
+Back to the `CreateUserAccountsLambda.ts` file, let' start building the handler.
+
+Firstly, we'll import a couple of functions
+
+- Logger(For capturing key fields from the Lambda context, cold starts, and structure logging output as JSON)
+- `AppSyncResolverHandler` from the aws lambda package.
+- `DynamoDB` object from aws sdk
+- `User` and `MutationCreateUserAccountArgs` from the generated `appsync.d.ts` file
+- `uuid` and `executeTransactWrite` from a custom utils file, created by us.
 
 ```typescript
 import { Logger } from "@aws-lambda-powertools/logger";
@@ -862,7 +870,10 @@ import { DynamoDB } from "aws-sdk";
 import { User, MutationCreateUserAccountArgs } from "../../../appsync";
 // utility functions to generate ksuid's and execute dynamodb transactions
 import { uuid, executeTransactWrite } from "../../utils";
-
+/*
+The Logger utility must always be instantiated outside the Lambda handler.
+By doing this, subsequent invocations processed by the same instance of your function can reuse these resources. This saves cost by reducing function run time. In addition, Logger can keep track of a cold start and inject the appropriate fields into logs.
+*/
 const logger = new Logger({ serviceName: "CreateUserAccountsHandler" });
 
 export const handler: AppSyncResolverHandler<
@@ -871,10 +882,13 @@ export const handler: AppSyncResolverHandler<
 > = async (event) => {
   logger.debug(`appsync event arguments ${JSON.stringify(event)}`);
 
+  // Get an instance of the the DynamoDB DocumentClient
   const documentClient = new DynamoDB.DocumentClient();
+  // Get the dynamodb table name of the environment variable.
   let tableName = process.env.GroupChat_DB;
 
   const createdOn: number = Date.now();
+  // get a unique ksuid
   const id: string = uuid();
   if (tableName === undefined) {
     logger.error(`Couldn't get the table name`);
@@ -882,6 +896,441 @@ export const handler: AppSyncResolverHandler<
   }
 
   logger.info(`message input info", ${JSON.stringify(event.arguments)}`);
+
+  // grab user submitted input from the input arguments
   const { username, email, profilePicUrl } = event.arguments.input;
 };
 ```
+
+We'll use user attributes to maintain uniqueness of a user entity.
+
+- username
+- email
+
+So when a user attempts to create an account, we'll make sure there isn't already a user in the database with that same username and email.
+
+We'll use a dynamodb transaction to accomplish this task.
+
+```typescript
+const params = {
+  TransactItems: [
+    {
+      Put: {
+        Item: {
+          id: id,
+
+          ENTITY: "USER",
+
+          PK: `USER#${username}`,
+
+          SK: `USER#${username}`,
+
+          username: username,
+
+          email: email,
+
+          profilePicUrl: profilePicUrl,
+
+          createdOn: createdOn,
+        },
+        TableName: tableName,
+        ConditionExpression: "attribute_not_exists(PK)",
+      },
+    },
+    {
+      Put: {
+        Item: {
+          id: id,
+
+          ENTITY: "USER",
+
+          PK: `USEREMAIL#${email}`,
+
+          SK: `USEREMAIL#${email}`,
+
+          email: email,
+
+          createdOn: createdOn,
+        },
+        TableName: tableName,
+        ConditionExpression: "attribute_not_exists(PK)",
+      },
+    },
+  ],
+};
+
+try {
+  await executeTransactWrite(params, documentClient);
+  return {
+    id,
+    username,
+    email,
+    profilePicUrl,
+  };
+} catch (error: any) {
+  logger.error(`an error occured while sending message ${error}`);
+  logger.error("Error creating user account");
+
+  let errorMessage = "Could not create user account";
+
+  if (error.code === "TransactionCanceledException") {
+    if (error.cancellationReasons[0].Code === "ConditionalCheckFailed") {
+      errorMessage = "User with this username already exists.";
+    } else if (error.cancellationReasons[1].Code === "ConditionalCheckFailed") {
+      errorMessage = "User with this email already exists.";
+    }
+  }
+  throw new Error(errorMessage);
+}
+```
+
+Notice that we maintain uniqueness by adding a conditional expression `"ConditionExpression:attribute_not_exists(PK)"`,in each of the `put` requests in the transactWrite function.
+
+Also, we are using a transactWrite because of it's atomic feature. Either all the requests succeed, or all fail.
+
+Incase of a failure, we catch the exception and return a user friendly message back through the graphql api.
+
+### Add UserLambdaStack to CDK APP
+
+Please make sure you have the complete code.
+
+Open up the `group_chat.ts` file in the `bin` folder and add the `user_lambda_stack.ts` stack.
+
+```typescript
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import { GroupChatStack } from "../lib/group_chat_stack";
+import { UserLamdaStacks } from "../lib/user_lambda_stack";
+import { GroupLamdaStacks } from "../lib/group_lambda_stack";
+import { MessageLamdaStacks } from "../lib/message_lambda_stack";
+
+const app = new cdk.App();
+const groupChatStack = new GroupChatStack(app, "GroupChatStack", {
+  env: { account: "13xxxxxxxxxx", region: "us-east-2" },
+});
+
+new UserLamdaStacks(app, "UserLambdaStacks", {
+  env: { account: "13xxxxxxxxxx", region: "us-east-2" },
+  groupChatTable: groupChatStack.groupChatTable,
+  apiSchema: groupChatStack.apiSchema,
+  groupChatGraphqlApi: groupChatStack.groupChatGraphqlApi,
+});
+```
+
+Now that we have the user stack setup, let's move on to the group stack.
+
+## Group Stack
+
+This stack would contain all resources related to the group.
+
+Here are the endpoints related to the group stack.
+
+#### Mutation
+
+```graphql
+
+ createGroup(input: GroupInput!): Group! @aws_cognito_user_pools
+
+ addUserToGroup(userId: String!, groupId: String!): Boolean! @aws_cognito_user_pools
+
+```
+
+#### Query
+
+```graphql
+ getAllGroupsCreatedByUser(userId: String! limit: Int nextToken: String): GroupResult! @aws_cognito_user_pools
+
+ getGroupsUserBelongsTo(userId: String! limit: Int nextToken: String): UserGroupResult! @aws_cognito_user_pools
+```
+
+2 Mutations and 2 queries.
+
+Let's begin by creating the resources for the Group Stack.
+
+Create a file called `group_lambda_stack.ts` in the `lib` folder.
+
+We'll need to get the shared resources we declared in the main stack, same as we did in the user lambda stack.
+
+```typescript
+interface GroupLambdaStackProps extends StackProps {
+  groupChatGraphqlApi: CfnGraphQLApi;
+  apiSchema: CfnGraphQLSchema;
+  groupChatTable: Table;
+  groupChatDatasource: CfnDataSource;
+}
+```
+
+Then we replace `StackProps` with `GroupLambdaStackProps` in the GroupLambdaStack constructor.
+
+We'll then get all shared resources(from the interface) by destructuring the `props` object.
+
+```typescript
+export class GroupLamdaStacks extends Stack {
+  constructor(scope: Construct, id: string, props: GroupLambdaStackProps) {
+    super(scope, id, props);
+
+    const {
+      groupChatTable,
+      groupChatGraphqlApi,
+      apiSchema,
+      groupChatDatasource,
+    } = props;
+  }
+}
+```
+
+We'll use lambda resolvers for the `Mutations` and VTL templates for `Queries`.
+
+I do this for 2 reasons
+
+- VTL templates are fast. Zero cold starts.
+- The lesser the lambda functions the lesser the cold starts and the faster the application.
+- I just love retrieving data using VTL templates.
+
+Let's create 2 lambda functions handler in the `lib/lambda_fns/group` folder.
+
+- `CreateGroupHandler.ts`
+- `AddUserToGroupHandler.ts`
+
+### Create Group Handler
+
+This function takes an input made up of the userId for the user creating the group, the group name and description and saves them to the database.
+
+The function bears a similar structure to the `CreateUserAccountsHandler.ts` handler. The only difference here is that, we get to use a dynamodb put request, instead of a transact write.
+
+It has these composite keys
+
+```typescript
+PK: `GROUP#${this.id}`;
+SK: `GROUP#${this.id}`;
+```
+
+Which we can use to get the group. And also, we save a GSI for getting all groups for a particular user.
+
+```typescript
+ GSI1PK: `USER#${this.userId}`,
+ GSI1SK: `GROUP#${this.id}`,
+```
+
+```typescript
+const logger = new Logger({ serviceName: "CreateGroupLambda" });
+
+export const handler: AppSyncResolverHandler<
+  MutationCreateGroupArgs,
+  Group
+> = async (event) => {
+  const groupInput: GroupEntity = new GroupEntity({
+    id: id,
+    ...event.arguments.input,
+    createdOn,
+  });
+
+  logger.info(`group input info", ${JSON.stringify(groupInput)}`);
+  const params = {
+    TableName: tableName,
+    Item: groupInput.toItem(),
+  };
+
+  try {
+    await documentClient.put(params).promise();
+    return groupInput.graphQlReturn();
+  } catch (error: any) {
+    logger.error(`an error occured while creating user ${error}`);
+    throw error;
+  }
+};
+```
+
+We've also used a `GroupEntity` class that contains helper functions to assign the keys and construct a return type.
+
+```typescript
+  toItem() {
+    return {
+      ...this.key(),
+      ...this.gsi1Key(),
+      id: this.id,
+      ENTITY: "GROUP",
+
+      userId: this.userId,
+      name: this.name,
+      description: this.description,
+
+      createdOn: this.createdOn,
+    };
+  }
+
+  graphQlReturn() {
+    return {
+      id: this.id,
+      userId: this.userId,
+      name: this.name,
+      description: this.description,
+      createdOn: this.createdOn,
+    };
+  }
+}
+
+export default GroupEntity;
+```
+
+Get the complete code for [GroupEntity](lib/lambda_fns/group/GroupEntity.ts) here.
+
+### Add User To Group
+
+When a group is created, the next logical step is to add your friends.
+
+This handler adds a user to a group, and also adds the group to the user's groups.
+
+The composite key for adding a user to a group is
+
+```typescript
+PK: `GROUP#${groupId}`;
+SK: `USER#${userId}`;
+```
+
+There's also another composite key for adding a group to the user's groups.
+
+```typescript
+      GSI3PK: `USER#${userId}`,
+      GSI3SK: `GROUP#${groupId}`,
+
+```
+
+```typescript
+const logger = new Logger({ serviceName: "AddUserToGroupLambda" });
+export const handler: AppSyncResolverHandler<
+  MutationAddUserToGroupArgs,
+  Boolean
+> = async (event) => {
+  const documentClient = new DynamoDB.DocumentClient();
+  let tableName = process.env.GroupChat_DB;
+  const createdOn = Date.now().toString();
+  const id: string = uuid();
+  if (tableName === undefined) {
+    logger.error(`Couldn't get the table name`);
+    tableName = "groupChatDynamoDBTable";
+  }
+
+  logger.info(`"group input info", ${JSON.stringify(event.arguments)}`);
+  const { userId, groupId } = event.arguments;
+  const params = {
+    TableName: tableName,
+    Item: {
+      id: id,
+      PK: `GROUP#${groupId}`,
+      SK: `USER#${userId}`,
+      GSI3PK: `USER#${userId}`,
+      GSI3SK: `GROUP#${groupId}`,
+      userId: userId,
+      groupId: groupId,
+      createdOn: createdOn,
+    },
+  };
+
+  try {
+    await documentClient.put(params).promise();
+    return true;
+  } catch (error: any) {
+    logger.error(`an error occured while creating user ${error}`);
+    return false;
+  }
+};
+```
+
+Now, back to the `group_lambda_stack.ts` stack file. Here are a couple steps we are about to perform.
+
+- Create Lambda Handler
+- Create and Assign Lambda Appsync role
+- Assign Lambda Cloudwatch service role
+- Create Lambda Datasource
+- Create lambda resolver and attach to Datasource
+- Attach Lambda resolver to api schema.
+- Grant DynamoDB full access to lambda function
+
+Here's how we define the `CreateGroupHandler.ts` lambda function, which outputs logs to cloudwatch.
+
+```typescript
+const createGroupLambda = new NodejsFunction(this, "GroupLambdaHandler", {
+  tracing: Tracing.ACTIVE,
+  codeSigningConfig,
+  runtime: lambda.Runtime.NODEJS_16_X,
+  handler: "handler",
+  entry: path.join(__dirname, "lambda_fns/group", "CreateGroupHandler.ts"),
+
+  memorySize: 1024,
+});
+
+createGroupLambda.role?.addManagedPolicy(
+  ManagedPolicy.fromAwsManagedPolicyName(
+    "service-role/AWSAppSyncPushToCloudWatchLogs"
+  )
+);
+```
+
+Next, we need to create and assign an `appsynclambdarole`. This role would give appsync full access to our lambda function.
+
+```typescript
+const appsyncLambdaRole = new Role(this, "LambdaRole", {
+  assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
+});
+appsyncLambdaRole.addManagedPolicy(
+  ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess")
+);
+```
+
+We've assigned a `AWSLambda_FullAccess` policy role which goes against the principle of `least privilege`. In a production app, you want to grant only the permissions required for the lambda to run effectively.Maybe a READ/WRITE access policy only, in-order to avoid unforseen circumstancies.
+
+Now, we need to create our datasource and assign the role which we created above.
+
+```typescript
+const lambdaDataSources: CfnDataSource = new CfnDataSource(
+  this,
+  "GroupLambdaDatasource",
+  {
+    apiId: groupChatGraphqlApi.attrApiId,
+    name: "GroupLambdaDatasource",
+    type: "AWS_LAMBDA",
+
+    lambdaConfig: {
+      lambdaFunctionArn: createGroupLambda.functionArn,
+    },
+    serviceRoleArn: appsyncLambdaRole.roleArn,
+  }
+);
+```
+
+Then, we create a resolver and attach the datasource to it.
+
+```typescript
+const createGroupResolver: CfnResolver = new CfnResolver(
+  this,
+  "createGroupResolver",
+  {
+    apiId: groupChatGraphqlApi.attrApiId,
+    typeName: "Mutation",
+    fieldName: "createGroup",
+    dataSourceName: lambdaDataSources.attrName,
+  }
+);
+```
+
+Notice the `typeName`, `fieldName` and the `dataSourceName`.
+
+The resolver depends on our graphql schema
+
+`createGroupResolver.addDependsOn(apiSchema);`
+
+Grant dynamodb full access to lambda function
+` groupChatTable.grantFullAccess(createGroupLambda);`
+
+Remember we accessed the dynamodb name in our lambda function through an environment variable. Here's how we assigned the environment variable to the lambda function.
+
+`createGroupLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);`
+
+Now, i would love for you to do these same process, for the `addUserToGroup` endpoint. It's very similar. Here's the [complete code](lib/group_lambda_stack.ts).
+
+`cdk synth --all`
+`cdk bootstrap`
+`cdk deploy --all`
+
+The reason why we use `--all` is because our app has multiple stacks.
