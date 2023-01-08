@@ -1,7 +1,7 @@
  
 #set($limit=$util.defaultIfNull($ctx.args.limit, 10))
-#if($limit>100)
-  #set($limit=100)
+#if($limit>10)
+  #set($limit=10)
 #end
  #set($gsi1pk = $util.dynamodb.toStringJson("USER#${ctx.args.userId}"))
  #set($gsi1sk = $util.dynamodb.toStringJson("GROUP#"))
