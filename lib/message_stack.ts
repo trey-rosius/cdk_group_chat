@@ -1,7 +1,6 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import {
   CfnDataSource,
-  CfnFunctionConfiguration,
   CfnGraphQLApi,
   CfnGraphQLSchema,
   CfnResolver,
@@ -16,15 +15,15 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Tracing } from "aws-cdk-lib/aws-lambda";
 import { readFileSync } from "fs";
 
-interface MessageLambdaStackProps extends StackProps {
+interface MessageStackProps extends StackProps {
   groupChatGraphqlApi: CfnGraphQLApi;
   apiSchema: CfnGraphQLSchema;
   groupChatTable: Table;
   groupChatDatasource: CfnDataSource;
 }
 
-export class MessageLamdaStacks extends Stack {
-  constructor(scope: Construct, id: string, props: MessageLambdaStackProps) {
+export class MessageStack extends Stack {
+  constructor(scope: Construct, id: string, props: MessageStackProps) {
     super(scope, id, props);
 
     const {
@@ -179,62 +178,6 @@ export class MessageLamdaStacks extends Stack {
         ).toString(),
       }
     );
-    /*
-    const getAllMessagesPerGroupFunction: CfnFunctionConfiguration =
-      new CfnFunctionConfiguration(this, "getAllMessagesPerGroupFunction", {
-        apiId: groupChatGraphqlApi.attrApiId,
-
-        dataSourceName: groupChatDatasource.name,
-        requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_messages_per_group_request.vtl"
-        ).toString(),
-        responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_messages_per_group_response.vtl"
-        ).toString(),
-        functionVersion: "2018-05-29",
-        name: "getAllMessagesPerGroupFunction",
-      });
-
-    const getUserPerMessagesFunction: CfnFunctionConfiguration =
-      new CfnFunctionConfiguration(this, "getUserPerMessagesFunction", {
-        apiId: groupChatGraphqlApi.attrApiId,
-
-        dataSourceName: groupChatDatasource.name,
-        requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_user_per_messages_request.vtl"
-        ).toString(),
-        responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_user_per_messages_response.vtl"
-        ).toString(),
-        functionVersion: "2018-05-29",
-        name: "getUserPerMsssagesFunction",
-      });
-
-    const getResultMessagesPerGroupResolver: CfnResolver = new CfnResolver(
-      this,
-      "getResultMessagesPerGroupResolver",
-      {
-        apiId: groupChatGraphqlApi.attrApiId,
-        typeName: "Query",
-        fieldName: "getAllMessagesPerGroup",
-        kind: "PIPELINE",
-        pipelineConfig: {
-          functions: [
-            getAllMessagesPerGroupFunction.attrFunctionId,
-            getUserPerMessagesFunction.attrFunctionId,
-          ],
-        },
-
-        requestMappingTemplate: readFileSync(
-          "./lib/vtl/before_mapping_template.vtl"
-        ).toString(),
-
-        responseMappingTemplate: readFileSync(
-          "./lib/vtl/after_mapping_template.vtl"
-        ).toString(),
-      }
-    );
-*/
     sendMessageResolver.addDependsOn(apiSchema);
     typingIndicatorResolver.addDependsOn(apiSchema);
     getResultMessagesPerGroupResolver.addDependsOn(apiSchema);

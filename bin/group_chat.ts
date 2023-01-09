@@ -4,7 +4,7 @@ import * as cdk from "aws-cdk-lib";
 import { GroupChatStack } from "../lib/group_chat_stack";
 import { UserLamdaStacks } from "../lib/user_lambda_stack";
 import { GroupLamdaStacks } from "../lib/group_lambda_stack";
-import { MessageLamdaStacks } from "../lib/message_lambda_stack";
+import { MessageStack } from "../lib/message_stack";
 
 const app = new cdk.App();
 const groupChatStack = new GroupChatStack(app, "GroupChatStack", {
@@ -26,7 +26,7 @@ new GroupLamdaStacks(app, "GroupLambdaStacks", {
   groupChatDatasource: groupChatStack.groupChatTableDatasource,
 });
 
-new MessageLamdaStacks(app, "MessageLambdaStacks", {
+new MessageStack(app, "MessageLambdaStacks", {
   env: { account: "132260253285", region: "us-east-2" },
   groupChatTable: groupChatStack.groupChatTable,
   apiSchema: groupChatStack.apiSchema,
