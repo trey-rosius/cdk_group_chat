@@ -1818,7 +1818,15 @@ Once deployed successfully, you should be able to see the graphql endpoint in yo
 
 ## Endpoint Testing
 
-We are going to be using the AWS appsync console, for testing our graphql api's. You can also use postman or any other api platform of your choice.
+We are going to be using the AWS appsync console for testing our graphql api's. You can also use postman or any other api platform of your choice.
 
 Sign into your aws account, search and open up appsync.
-images/search_appsync.png
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/search_appsync.png)
+
+Once in the appsync console, click and open up your project.
+
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/appsync_project.png)
+
+From the left side menu, click on `Queries`.
+We are going to be testing out all the `Query`, `Mutation` and `Subscription` we created for our app.
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/search_queries.png)
