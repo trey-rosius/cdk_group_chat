@@ -1814,4 +1814,11 @@ When it's all said and done, we have to deploy and test the application.Since ou
 
 `cdk deploy --all`
 
-Once deployed successfully, let's go ahead and start testing every endpoint.
+Once deployed successfully, you should be able to see the graphql endpoint in your terminal.
+
+## Endpoint Testing
+
+We are going to be using the AWS appsync console, for testing our graphql api's. You can also use postman or any other api platform of your choice.
+
+Sign into your aws account, search and open up appsync.
+images/search_appsync.png
