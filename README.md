@@ -1848,8 +1848,14 @@ From the aws console search bar, type cognito and open up the cognito user pools
 
 ![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/cognito.png)
 
-Navigate to your project and create a new user.
+Navigate to your project and create a new user.Take note of the username(email) and password you used.
 
 ![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/create_user.png)
 
 Once created, go back to your project on Appsync and sign in with the username and password you just created.
+
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/auth.png)
+
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/auth1.png)
+
+Once logged in, run the endpoint again. If everything goes smoothly, you’ll see a result similar to this, based on the inputs you gave.

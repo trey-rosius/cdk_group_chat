@@ -27,7 +27,10 @@ export const executeTransactWrite = async (
           cancellationReasons,
           err,
         });
-        return reject(err);
+        return reject({
+          cancellationReasons,
+          err,
+        });
       }
       return resolve(response);
     });
