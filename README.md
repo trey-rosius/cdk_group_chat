@@ -122,7 +122,7 @@ Flutter transforms the app development process. Build, test, and deploy beautifu
 
 ## Solutions Architecture
 
-![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/groupChat_transparent.png)
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/group.png)
 
 ## Database Model
 
