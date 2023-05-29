@@ -21,7 +21,7 @@
 
 - A user can belong to many groups and a group can have many users.
 
-- Therefore there's a many to many relationship between user and group.
+- Therefore, there's a many-to-many relationship between user and group.
 
 #### Groups And Messages
 

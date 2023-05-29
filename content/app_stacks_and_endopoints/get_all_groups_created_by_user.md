@@ -1,7 +1,7 @@
 ### getAllGroupsCreatedByUser
 
 This is a Query request, which would either return an empty list or a list of groups the requesting user created.
-This request suppports pagination, so we will be using `limit`, to limit the amount of data we demand per request, and also `nextToken` to provide a string to the next position our request should start demanding from.
+This request supports pagination, so we will be using `limit`, to limit the amount of data we demand per request, and also `nextToken` to provide a string to the next position our request should start demanding from.
 
 Hope that makes sense.
 
@@ -80,7 +80,7 @@ For the `nextToken` variable, `$util.toJson($util.defaultIfNull($ctx.args.nextTo
 Getting the groups created by a user involves using our first Global Secondary index(GSI1), which was
 ` indexName: "groupsCreatedByUser"`.
 
-We would use `begins_with (a, substr)` function in our query operation to carryout this request. We want all groups for a particular user that begins with `GROUP#`.
+We would use `begins_with (a, substr)` function in our query operation to carry out this request. We want all groups for a particular user that begins with `GROUP#`.
 
 `"expression": "#GSI1PK = :GSI1PK and begins_with(#GSI1SK,:GSI1SK)",`
 
@@ -104,7 +104,7 @@ Notice that we pass back a list of items and a string for the `nextToken`.
 
 Let's go back the `group_lambda_stack.ts` stack file and connect these vtl mapping templates to a resolver.
 
-Our datasource for these resolver, is created from the dynamoDB table in the main stack file(`group_chat_stack.ts`).
+Our datasource for this resolver, is created from the dynamoDB table in the main stack file(`group_chat_stack.ts`).
 
 ```typescript
 this.groupChatTableDatasource = new CfnDataSource(

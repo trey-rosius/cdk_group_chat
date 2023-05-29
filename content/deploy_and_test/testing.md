@@ -1,8 +1,8 @@
 ## Endpoint Testing
 
-We are going to be using the AWS appsync console for testing our graphql api's. You can also use postman or any other api platform of your choice.
+We are going to be using the AWS appsync console for testing our graphql app's. You can also use postman or any other api platform of your choice.
 
-Sign into your aws account, search and open up appsync.
+Sign in to your aws account, search and open up appsync.
 ![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/search_appsync.png)
 
 Once in the appsync console, click and open up your project.

@@ -12,6 +12,7 @@ Inside `group-chat-stack.ts` file located in `lib` folder, we’ll defined const
 ### Security and Data Protection
 
 Security and data protection for your applications is of utmost importance. AWS Appsync provides five different ways to authorize/authenticate a GraphQL api.
+
 We will be using 2.
 
 - `API_KEY`
@@ -19,13 +20,28 @@ We will be using 2.
 
 Amazon Cognito provides authentication, authorization, and user management for your web and mobile apps.
 
-Your users can sign in directly with a user name and password, or through a third party such as Facebook, Amazon, Google or Apple.
+Your users can sign in directly with a username and password, or through a third party such as Facebook, Amazon, Google or Apple.
 
-The two main components of Amazon Cognito are user pools and identity pools. User pools are user directories that provide sign-up and sign-in options for your app users. Identity pools enable you to grant your users access to other AWS services. You can use identity pools and user pools separately or together.
+The two main components of Amazon Cognito are 
 
-An app is an entity within a user pool that has permission to call unauthenticated API operations. Unauthenticated API operations are those that do not have an authenticated user. Examples include operations to register, sign in, and handle forgotten passwords. To call these API operations, you need an app client ID and an optional client secret. It is your responsibility to secure any app client IDs or secrets so that only authorized client apps can call these unauthenticated operations.
+- user pools 
+- identity pools. 
 
-You can create multiple apps for a user pool. Typically, an app corresponds to the platform of an app. For example, you might create an app for a server-side application and a different Android app. Each app has its own app client ID.
+User pools are user directories that provide sign-up and sign-in options for your app users. 
+
+Identity pools enable you to grant your users access to other AWS services. You can use identity pools and user pools separately or together.
+
+An app is an entity within a user pool that has permission to call unauthenticated API operations.
+
+Unauthenticated API operations are those that do not have an authenticated user. Examples include operations to register, sign in, and handle forgotten passwords. 
+
+To call these API operations, you need an app client ID and an optional client secret. 
+
+It is your responsibility to secure any app client IDs or secrets so that only authorized client apps can call these unauthenticated operations.
+
+You can create multiple apps for a user pool. Typically, an app corresponds to the platform of an app.
+
+For example, you might create an app for a server-side application and a different Android app. Each app has its own app client ID.
 
 Let’s define the userpool and the userpool client
 

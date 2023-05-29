@@ -8,7 +8,7 @@ Within the newly created folder, initialize a typescript cdk project using the c
 
 `cdk init --language=typescript`
 
-Once created, open up the app your IDE and lets proceed.
+Once created, open up the app in your IDE and let's proceed.
 
 ### Dependencies
 
@@ -28,7 +28,9 @@ We’ll be using lambda-powertools for typescript library for structured logging
 
 Feel free to read more about the library here [https://awslabs.github.io/aws-lambda-powertools-typescript/latest/](https://awslabs.github.io/aws-lambda-powertools-typescript/latest/)
 
-We'll be using both lambda and vtl as our Appsync resolvers. When using lambda(with Typescript),we want our typescript types to correspond with the graphql schema. Doing this manually is tedious, prone to error and is basically doing the same job twice!.
+We'll be using both lambda and vtl as our Appsync resolvers. When using lambda(with Typescript),we want our typescript types to correspond with the graphql schema. 
+
+Doing this manually is tedious, prone to error and is basically doing the same job twice!.
 
 These 3 libraries would help us generate GraphQl types into our code automatically.
 
@@ -38,7 +40,7 @@ These 3 libraries would help us generate GraphQl types into our code automatical
     "@types/aws-lambda": "^8.10.106",
 ```
 
-The first two packages belong to the graphql-code-generator suite. The first one is the base CLI, while the second one is the plugin that generates TypeScript code from a GraphQL schema.
+The first two packages belong to the graphql-code-generator suite. The first one is the base CLI, while the second one is the plugin that generates TypeScript codes from a GraphQL schema.
 
 `@types/aws-lambda` is a collection of TypeScript types for AWS Lambda. It includes all sorts of Lambda event type definitions (API gateway, S3, SNS, etc.), including one for AppSync resolvers (AppSyncResolverHandler). We'll use that last one later when we build our resolvers.
 

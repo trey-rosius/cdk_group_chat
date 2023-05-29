@@ -2,11 +2,16 @@
 
 ## Case Study : Building a Group Chat Application.
 
-Serverless computing is the most recent and recommended approach to building modern cloud applications.
-Serverless enables developers to focuse on the business logic and how their application brings value to end users, rather than on configuration and operations of the servers running their applications.
+Serverless computing is the most recent and recommended approach to building modern cloud event driven applications.
+Serverless enables developers to focus on the business logic and how their application brings value to end users, 
+rather than on configuration and operations of the servers running their applications.
 
-By not focusing on operations or infrastructure provisioning, the time it takes for an application to move from prototype to production is cut in half. Iteration is rapid, user feedback is quick, leading to significant app improvements.
-Let's take a look at a step by step guide on how to build a fullstack serverless mobile group chat application.
+By not focusing on operations or infrastructure provisioning, the time it takes for an application to move from idea to prototype is cut in half.
+
+Iteration is rapid, user feedback is quick, leading to significant app improvements.
+
+Let's take a look at a step-by-step guide on how to build a fullstack serverless group chat application.
+
 Here's a list of frameworks and languages we would be using in-order to accomplish this task.
 
 - [AWS AppSync](https://aws.amazon.com/appsync/)
@@ -47,3 +52,4 @@ Learn how to use Amplify to develop and deploy cloud-powered mobile and web apps
 Flutter is an open source framework by Google for building beautiful, natively compiled, multi-platform applications from a single codebase.
 
 Flutter transforms the app development process. Build, test, and deploy beautiful mobile, web, desktop, and embedded apps from a single codebase
+

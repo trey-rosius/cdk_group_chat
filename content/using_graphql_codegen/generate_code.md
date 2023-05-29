@@ -141,5 +141,6 @@ Add `"codegen": "graphql-codegen"` to your package.json under the "scripts" sect
   },
 ```
 
-If you look in your working directory, you should now see an appsync.d.ts file that contains your generated types.
+If you look inside your working directory, you should now see an appsync.d.ts file that contains your generated types.
+
 We will go indepth on the file contents as we progress along.

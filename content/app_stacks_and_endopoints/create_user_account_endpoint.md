@@ -246,6 +246,6 @@ try {
 
 Notice that we maintain uniqueness by adding a conditional expression `"ConditionExpression:attribute_not_exists(PK)"`,in each of the `put` requests in the transactWrite function.
 
-Also, we are using a transactWrite because of it's atomic feature. Either all the requests succeed, or all fail.
+Also, we are using a transactWrite because of its atomic feature. Either all the requests succeed, or all fail.
 
-Incase of a failure, we catch the exception and return a user friendly message back through the graphql api.
+In case of a failure, we catch the exception and return a user-friendly message back through the graphql api.

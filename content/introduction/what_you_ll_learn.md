@@ -1,4 +1,4 @@
-## What you'll learn
+## What We are going to learn
 
 ### Backend
 
@@ -13,9 +13,10 @@
 
 ### Frontend
 
-- How to create a full fledged flutter application to consume a GraphQL Api using AWS Amplify.
+- How to create a full-fledged flutter application to consume a GraphQL Api using AWS Amplify.
   This would involve
 - Implementing Authentication mechanisms such as Sign in with Google, Sign in with username and password.
 - Implementing Image uploads
 - Implementing several screens to show case the complete group chat
 - Implementing State Management using Provider.
+

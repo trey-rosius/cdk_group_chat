@@ -2,7 +2,6 @@
 
 This stack would contain all resources related to the group.
 
-Here are the endpoints related to the group stack.
 
 #### Mutation
 
