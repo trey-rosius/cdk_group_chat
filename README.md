@@ -1,4 +1,5 @@
 
+
 In this course, you will learn how to build a modern serverless group chat application using various AWS services like AWS Amplify, AWS CDK, AWS AppSync, and AWS Lambda.
 
 Then you'll create a flutter mobile application with AWS Amplify to consume the backend API you created.
@@ -12,6 +13,7 @@ What you get
 - How to use GraphQL CodeGen to generate typescript types directly from your graphQL schema.
 - 
 Happy Coding 
+
 
 
 ```
