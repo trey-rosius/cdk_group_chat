@@ -9,5 +9,8 @@ What you get
 - How to create multiple stacks with cdk
 - Basic understanding of Graphql.
 - How to use GraphQL CodeGen to generate typescript types directly from your graphQL schema.
-- 
-Happy Coding 
+
+## Solutions Architecture
+
+
+![alt text](https://github.com/trey-rosius/cdk_group_chat/raw/master/images/group.png)
