@@ -91,7 +91,7 @@ groupChatTable.grantFullAccess(userLambda);
 userLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);
 ```
 
-Here's the [complete code](lib/user_lambda_stack.ts) for this file.
+Here's the [complete code](https://github.com/trey-rosius/cdk_group_chat/blob/master/lib/user_lambda_stack.ts) for this file.
 
 Now, let's go ahead and look at the code to create a user account in the `CreateUserAccountsLambda.ts` file.
 

@@ -4,7 +4,6 @@ This stack contains all resources for the messages, and it's very similar to the
 
 It has 2 mutations and one query.
 
-
 ### Mutations
 
 ```graphql
@@ -33,7 +32,7 @@ That's why we have a mutation called `typingIndicator` and we would use a subscr
   ): MessageResult! @aws_cognito_user_pools
 ```
 
-This query returns a MessageResult that has a list of `Messages` and a string as `nextToken`. 
+This query returns a MessageResult that has a list of `Messages` and a string as `nextToken`.
 
 The `nextToken` is used for pagination purposes.
 
@@ -54,7 +53,7 @@ We have to use a nested resolver to resolve the `user` field. Luckily, we alread
 
 As a little challenge, I urge you to attempt to write this stack, alongside the resolvers and Data Sources.
 
-Here's the complete code for the [message stack](lib/message_stack.ts). You can find the lambda resolvers and vtl templates in their respective folders. 
+Here's the complete code for the [message stack](https://github.com/trey-rosius/cdk_group_chat/blob/master/lib/message_stack.ts). You can find the lambda resolvers and vtl templates in their respective folders.
 
 The code is mainly a repetition of what we've already written, so it shouldn't be hard to comprehend.
 

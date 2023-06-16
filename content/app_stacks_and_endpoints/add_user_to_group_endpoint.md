@@ -150,4 +150,4 @@ Remember we accessed the dynamodb name in our lambda function through an environ
 
 `createGroupLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);`
 
-Now, i would love for you to do these same process, for the `addUserToGroup` mutation endpoint. It's very similar to what we've just done. Here's the [complete code](lib/group_lambda_stack.ts).
+Now, i would love for you to do these same process, for the `addUserToGroup` mutation endpoint. It's very similar to what we've just done. Here's the [complete code](https://github.com/trey-rosius/cdk_group_chat/blob/master/lib/group_lambda_stack.ts).

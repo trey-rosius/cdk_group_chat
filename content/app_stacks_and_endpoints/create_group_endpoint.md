@@ -79,4 +79,4 @@ We've also used a `GroupEntity` class that contains helper functions to assign t
 export default GroupEntity;
 ```
 
-Get the complete code for [GroupEntity](lib/lambda_fns/group/GroupEntity.ts) here.
+Get the complete code for [GroupEntity](https://github.com/trey-rosius/cdk_group_chat/blob/master/lib/lambda_fns/group/GroupEntity.ts) here.
