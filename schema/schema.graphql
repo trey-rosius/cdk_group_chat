@@ -99,6 +99,7 @@ type Group @aws_cognito_user_pools {
   id: ID!
   userId: String!
   name: String!
+  groupProfilePic: String!
   description: String!
   createdOn: AWSTimestamp!
 }
@@ -106,6 +107,7 @@ type Group @aws_cognito_user_pools {
 input GroupInput {
   userId: String!
   name: String!
+  groupProfilePic: String!
   description: String!
 }
 type GroupResult @aws_cognito_user_pools {
