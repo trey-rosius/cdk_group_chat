@@ -8,6 +8,8 @@ type Subscription {
   typingIndicator: TypingIndicator
     @aws_subscribe(mutations: ["typingIndicator"])
   newMessage: Message @aws_subscribe(mutations: ["sendMessage"])
+  addUserToGroup(groupId: String!): Boolean
+    @aws_subscribe(mutations: ["addUserToGroup"])
 }
 
 type Mutation {
@@ -47,6 +49,9 @@ type Query {
     limit: Int
     nextToken: String
   ): UserGroupResult! @aws_cognito_user_pools
+  getUserAccount(userId: String!): User! @aws_cognito_user_pools
+  getAllUserAccounts(limit: Int, nextToken: String): UserResult!
+    @aws_cognito_user_pools
 }
 
 type User @aws_cognito_user_pools {
@@ -116,5 +121,9 @@ type GroupResult @aws_cognito_user_pools {
 }
 type UserGroupResult @aws_cognito_user_pools {
   items: [UserGroup!]! @aws_cognito_user_pools
+  nextToken: String
+}
+type UserResult @aws_cognito_user_pools {
+  items: [User!]! @aws_cognito_user_pools
   nextToken: String
 }
