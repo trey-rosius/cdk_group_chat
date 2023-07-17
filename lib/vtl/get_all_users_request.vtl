@@ -1,0 +1,31 @@
+ 
+#set($limit=$util.defaultIfNull($ctx.args.limit, 10))
+#if($limit>10)
+  #set($limit=10)
+#end
+ #set($entity = $util.dynamodb.toStringJson("USER"))
+ #set($sk = $util.dynamodb.toStringJson("USER#"))
+{
+    "version" : "2018-05-29",
+
+    "operation" : "Query",
+    "limit": $util.toJson($limit),
+    "nextToken":$util.toJson($util.defaultIfNull($ctx.args.nextToken, null)),
+    "query" : {
+        "expression": "#ENTITY = :ENTOTY and begins_with(#SK,:SK)",
+        "expressionNames":{
+        "#ENTITY":"ENTITY",
+        "#SK":"SK"
+        },
+        
+        "expressionValues" : {
+            ":ENTITY" : $entity,
+            ":SK" :$sk
+        },
+        
+    },
+    "index":"getAllUsers",
+    "scanIndexForward" : true
+
+
+}

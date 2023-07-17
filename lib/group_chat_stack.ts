@@ -144,6 +144,19 @@ export class GroupChatStack extends Stack {
     });
 
     this.groupChatTable.addGlobalSecondaryIndex({
+      indexName: "getAllUsers",
+      partitionKey: {
+        name: "ENTITY",
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: "SK",
+        type: AttributeType.STRING,
+      },
+
+      projectionType: ProjectionType.ALL,
+    });
+    this.groupChatTable.addGlobalSecondaryIndex({
       indexName: "groupsCreatedByUser",
       partitionKey: {
         name: "GSI1PK",

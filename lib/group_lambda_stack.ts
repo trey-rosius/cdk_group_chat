@@ -21,7 +21,7 @@ interface GroupLambdaStackProps extends StackProps {
   groupChatDatasource: CfnDataSource;
 }
 
-export class GroupLamdaStacks extends Stack {
+export class GroupLambdaStacks extends Stack {
   constructor(scope: Construct, id: string, props: GroupLambdaStackProps) {
     super(scope, id, props);
 
