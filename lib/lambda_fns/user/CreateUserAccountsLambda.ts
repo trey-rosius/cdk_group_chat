@@ -25,7 +25,7 @@ export const handler: AppSyncResolverHandler<
   }
 
   logger.info(`message input info", ${JSON.stringify(event.arguments)}`);
-  const { username, email, profilePicUrl } = event.arguments.input;
+  const { username, email, profilePicKey } = event.arguments.input;
   const params = {
     TransactItems: [
       {
@@ -43,7 +43,7 @@ export const handler: AppSyncResolverHandler<
 
             email: email,
 
-            profilePicUrl: profilePicUrl,
+            profilePicKey: profilePicKey,
 
             createdOn: createdOn,
           },
@@ -79,7 +79,7 @@ export const handler: AppSyncResolverHandler<
       id,
       username,
       email,
-      profilePicUrl,
+      profilePicKey,
     };
   } catch (error: any) {
     const jsonError = JSON.parse(error);

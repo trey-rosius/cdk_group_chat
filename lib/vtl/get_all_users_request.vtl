@@ -12,7 +12,7 @@
     "limit": $util.toJson($limit),
     "nextToken":$util.toJson($util.defaultIfNull($ctx.args.nextToken, null)),
     "query" : {
-        "expression": "#ENTITY = :ENTOTY and begins_with(#SK,:SK)",
+        "expression": "#ENTITY = :ENTITY and begins_with(#SK,:SK)",
         "expressionNames":{
         "#ENTITY":"ENTITY",
         "#SK":"SK"

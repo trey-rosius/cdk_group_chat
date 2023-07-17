@@ -58,7 +58,7 @@ type User @aws_cognito_user_pools {
   id: ID!
   username: String!
   email: String!
-  profilePicUrl: String!
+  profilePicKey: String!
   updatedOn: AWSDateTime
   createdOn: AWSDateTime
 }
@@ -66,7 +66,7 @@ type User @aws_cognito_user_pools {
 input UserInput @aws_cognito_user_pools {
   username: String!
   email: String!
-  profilePicUrl: String!
+  profilePicKey: String!
 }
 
 input UpdateUserInput @aws_cognito_user_pools {
@@ -104,7 +104,7 @@ type Group @aws_cognito_user_pools {
   id: ID!
   userId: String!
   name: String!
-  groupProfilePic: String!
+  groupProfilePicKey: String!
   description: String!
   createdOn: AWSTimestamp!
 }
