@@ -82,15 +82,16 @@ export const handler: AppSyncResolverHandler<
       profilePicKey,
     };
   } catch (error: any) {
-    const jsonError = JSON.parse(error);
     logger.error(
       `an error occured while sending message ${JSON.stringify(error)}`
     );
     logger.error("Error creating user account");
 
+    const jsonError = JSON.parse(JSON.stringify(error));
+
     let errorMessage = "Could not create user account";
 
-    if (jsonError.code === "TransactionCanceledException") {
+    if (jsonError.err.code === "TransactionCanceledException") {
       if (jsonError.cancellationReasons[0].Code === "ConditionalCheckFailed") {
         errorMessage = "User with this username already exists.";
       } else if (
@@ -99,6 +100,6 @@ export const handler: AppSyncResolverHandler<
         errorMessage = "User with this email already exists.";
       }
     }
-    throw new Error(errorMessage);
+    throw new Error(`${errorMessage}`);
   }
 };

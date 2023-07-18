@@ -72,7 +72,7 @@ input UserInput @aws_cognito_user_pools {
 input UpdateUserInput @aws_cognito_user_pools {
   id: ID!
   username: String!
-  profilePicUrl: String!
+  profilePicKey: String!
 }
 
 type Message @aws_cognito_user_pools {
@@ -112,7 +112,7 @@ type Group @aws_cognito_user_pools {
 input GroupInput {
   userId: String!
   name: String!
-  groupProfilePic: String!
+  groupProfilePicKey: String!
   description: String!
 }
 type GroupResult @aws_cognito_user_pools {
