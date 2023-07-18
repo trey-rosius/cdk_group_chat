@@ -2,7 +2,7 @@ interface GroupParameters {
   id: string;
   userId: string;
   name: string;
-  groupProfilePic: string;
+  groupProfilePicKey: string;
   description: string;
   createdOn: number;
 }
@@ -10,7 +10,7 @@ class GroupEntity {
   id: string;
   userId: string;
   name: string;
-  groupProfilePic: string;
+  groupProfilePicKey: string;
   description: string;
   createdOn: number;
 
@@ -19,7 +19,7 @@ class GroupEntity {
     userId,
     name,
     description,
-    groupProfilePic,
+    groupProfilePicKey,
 
     createdOn,
   }: GroupParameters) {
@@ -27,7 +27,7 @@ class GroupEntity {
 
     this.userId = userId;
     this.name = name;
-    this.groupProfilePic = groupProfilePic;
+    this.groupProfilePicKey = groupProfilePicKey;
 
     this.description = description;
 
@@ -62,7 +62,7 @@ class GroupEntity {
 
       userId: this.userId,
       name: this.name,
-      groupProfilePic: this.groupProfilePic,
+      groupProfilePicKey: this.groupProfilePicKey,
       description: this.description,
 
       createdOn: this.createdOn,
@@ -74,7 +74,7 @@ class GroupEntity {
       id: this.id,
       userId: this.userId,
       name: this.name,
-      groupProfilePic: this.groupProfilePic,
+      groupProfilePicKey: this.groupProfilePicKey,
       description: this.description,
       createdOn: this.createdOn,
     };
