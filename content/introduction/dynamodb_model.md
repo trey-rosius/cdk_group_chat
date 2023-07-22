@@ -1,6 +1,6 @@
 ## Database Model
 
-We can model the application's entities by defining separate tables as shown below
+We can model the application's entities by defining separate tables
 
 - Users
 - Groups
@@ -11,17 +11,19 @@ This is good, no doubt. But this would require that we write 2 or more queries t
 
 For example, getting users for a particular group involves making 2 queries.
 
-First query gets the list of user ids from `groups` table, second query involves getting user information for each specific `userId` from `users` table.
+First query gets the list of user ids from `groups` table, second query involves getting user information for each `userId` from `users` table.
 
-So I'll prefer we use single table design for this application.
+So its preferable we use single table design for this application.
 
-Meaning that, we would use one single table for all our entities. 
+Meaning that, we would use one table for all our entities.
 
 By having all entities in a single table, we can construct queries that return all the needed data with a single interaction with DynamoDB, speeding up the performance of the application for specific access patterns.
 
 But, the improved performance for specific access patterns comes at the cost of potentially reduced performance for other access patterns and increased application and query complexity.
 
-That's a design decision I'm conformable with. 
+So it's not a one-size fits all solution.
+
+But it's pretty good for this use case.
 
 Let's proceed.
 

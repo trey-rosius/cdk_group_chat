@@ -9,7 +9,6 @@
 - How to implement Nested and pipeline resolvers using VTL.
 - How to implement Direct Lambda resolvers.
 - How to properly log events flowing through your application.
-- How to implement a CI/CD pipeline to deploy your cdk application.
 
 ### Frontend
 
@@ -19,4 +18,3 @@
 - Implementing Image uploads
 - Implementing several screens to show case the complete group chat
 - Implementing State Management using Provider.
-

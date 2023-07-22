@@ -40,7 +40,7 @@ export class GroupLambdaStacks extends Stack {
       "CodeSigningConfig",
       {
         signingProfiles: [signingProfile],
-      }
+      },
     );
 
     const createGroupLambda = new NodejsFunction(this, "GroupLambdaHandler", {
@@ -54,8 +54,8 @@ export class GroupLambdaStacks extends Stack {
     });
     createGroupLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs"
-      )
+        "service-role/AWSAppSyncPushToCloudWatchLogs",
+      ),
     );
 
     const addUserToGroupLambda = new NodejsFunction(
@@ -69,23 +69,23 @@ export class GroupLambdaStacks extends Stack {
         entry: path.join(
           __dirname,
           "lambda_fns/group",
-          "AddUserToGroupHandler.ts"
+          "AddUserToGroupHandler.ts",
         ),
 
         memorySize: 1024,
-      }
+      },
     );
     addUserToGroupLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs"
-      )
+        "service-role/AWSAppSyncPushToCloudWatchLogs",
+      ),
     );
 
     const appsyncLambdaRole = new Role(this, "LambdaRole", {
       assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
     });
     appsyncLambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess")
+      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
     );
     const lambdaDataSources: CfnDataSource = new CfnDataSource(
       this,
@@ -99,7 +99,7 @@ export class GroupLambdaStacks extends Stack {
           lambdaFunctionArn: createGroupLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      }
+      },
     );
 
     const addUserToGroupDataSources: CfnDataSource = new CfnDataSource(
@@ -114,7 +114,7 @@ export class GroupLambdaStacks extends Stack {
           lambdaFunctionArn: addUserToGroupLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      }
+      },
     );
 
     const createGroupResolver: CfnResolver = new CfnResolver(
@@ -125,7 +125,7 @@ export class GroupLambdaStacks extends Stack {
         typeName: "Mutation",
         fieldName: "createGroup",
         dataSourceName: lambdaDataSources.attrName,
-      }
+      },
     );
 
     const addUserToGroupResolver: CfnResolver = new CfnResolver(
@@ -136,7 +136,7 @@ export class GroupLambdaStacks extends Stack {
         typeName: "Mutation",
         fieldName: "addUserToGroup",
         dataSourceName: addUserToGroupDataSources.attrName,
-      }
+      },
     );
 
     const getGroupsCreatedByUserResolver: CfnResolver = new CfnResolver(
@@ -148,13 +148,13 @@ export class GroupLambdaStacks extends Stack {
         fieldName: "getAllGroupsCreatedByUser",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_created_by_user_request.vtl"
+          "./lib/vtl/get_groups_created_by_user_request.vtl",
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_created_by_user_response.vtl"
+          "./lib/vtl/get_groups_created_by_user_response.vtl",
         ).toString(),
-      }
+      },
     );
 
     const getGroupsUserBelongsToResolver: CfnResolver = new CfnResolver(
@@ -166,13 +166,13 @@ export class GroupLambdaStacks extends Stack {
         fieldName: "getGroupsUserBelongsTo",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_user_belongs_to_request.vtl"
+          "./lib/vtl/get_groups_user_belongs_to_request.vtl",
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_user_belongs_to_response.vtl"
+          "./lib/vtl/get_groups_user_belongs_to_response.vtl",
         ).toString(),
-      }
+      },
     );
 
     const getGroupResolver: CfnResolver = new CfnResolver(
@@ -184,13 +184,13 @@ export class GroupLambdaStacks extends Stack {
         fieldName: "group",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_group_request.vtl"
+          "./lib/vtl/get_group_request.vtl",
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_group_response.vtl"
+          "./lib/vtl/get_group_response.vtl",
         ).toString(),
-      }
+      },
     );
     createGroupResolver.addDependsOn(apiSchema);
     addUserToGroupResolver.addDependsOn(apiSchema);

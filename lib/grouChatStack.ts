@@ -49,14 +49,14 @@ export class GroupChatStack extends Stack {
             mutable: true,
           },
         },
-      }
+      },
     );
     const dynamoDBRole = new Role(this, "DynamoDBRole", {
       assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
     });
 
     dynamoDBRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess")
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess"),
     );
 
     const userPoolClient: UserPoolClient = new cognito.UserPoolClient(
@@ -64,7 +64,7 @@ export class GroupChatStack extends Stack {
       "GroupChatUserPoolClient",
       {
         userPool,
-      }
+      },
     );
 
     /**
@@ -78,8 +78,8 @@ export class GroupChatStack extends Stack {
 
     cloudWatchRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs"
-      )
+        "service-role/AWSAppSyncPushToCloudWatchLogs",
+      ),
     );
 
     /**
@@ -209,7 +209,7 @@ export class GroupChatStack extends Stack {
           awsRegion: this.region,
         },
         serviceRoleArn: dynamoDBRole.roleArn,
-      }
+      },
     );
 
     /**

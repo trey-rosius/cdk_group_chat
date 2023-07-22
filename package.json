@@ -9,6 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "lint": "eslint --ext .js,.ts .",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "codegen": "graphql-codegen"
   },
   "devDependencies": {
@@ -31,6 +33,8 @@
   "dependencies": {
     "aws-cdk-lib": "2.43.1",
     "constructs": "^10.0.0",
+    "eslint": "^8.45.0",
+    "prettier": "^3.0.0",
     "source-map-support": "^0.5.21"
   }
 }

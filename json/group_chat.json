@@ -241,12 +241,7 @@
               }
             }
           ],
-          "NonKeyAttributes": [
-            "entity",
-            "userId",
-            "username",
-            "profile_pic"
-          ],
+          "NonKeyAttributes": ["entity", "userId", "username", "profile_pic"],
           "DataAccess": {
             "MySql": {}
           }
@@ -411,12 +406,7 @@
               }
             }
           ],
-          "NonKeyAttributes": [
-            "entity",
-            "userId",
-            "groupId",
-            "typing"
-          ],
+          "NonKeyAttributes": ["entity", "userId", "groupId", "typing"],
           "DataAccess": {
             "MySql": {}
           }

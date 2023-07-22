@@ -6,14 +6,14 @@ export const uuid = (): string => {
 
 export const executeTransactWrite = async (
   params: DocumentClient.TransactWriteItemsInput,
-  docClient: DocumentClient
+  docClient: DocumentClient,
 ): Promise<DocumentClient.TransactWriteItemsOutput> => {
   const transactionRequest = docClient.transactWrite(params);
   let cancellationReasons: any[];
   transactionRequest.on("extractError", (response) => {
     try {
       cancellationReasons = JSON.parse(
-        response.httpResponse.body.toString()
+        response.httpResponse.body.toString(),
       ).CancellationReasons;
     } catch (err) {
       // suppress this just in case some types of errors aren't JSON parseable

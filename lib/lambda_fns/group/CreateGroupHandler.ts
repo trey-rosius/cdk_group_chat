@@ -5,7 +5,7 @@ import { DynamoDB } from "aws-sdk";
 
 import { Group, MutationCreateGroupArgs } from "../../../appsync";
 import { uuid } from "../../utils";
-import GroupEntity from "./GroupEntity";
+import GroupEntity from "./groupEntity";
 
 const logger = new Logger({ serviceName: "CreateGroupLambda" });
 

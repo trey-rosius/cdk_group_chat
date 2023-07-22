@@ -83,7 +83,7 @@ export const handler: AppSyncResolverHandler<
     };
   } catch (error: any) {
     logger.error(
-      `an error occured while sending message ${JSON.stringify(error)}`
+      `an error occured while sending message ${JSON.stringify(error)}`,
     );
     logger.error("Error creating user account");
 
