@@ -6,7 +6,7 @@ import { uuid } from "../../utils";
 const logger = new Logger({ serviceName: "AddUserToGroupLambda" });
 export const handler: AppSyncResolverHandler<
   MutationAddUserToGroupArgs,
-  Boolean
+  boolean
 > = async (event) => {
   const documentClient = new DynamoDB.DocumentClient();
   let tableName = process.env.GroupChat_DB;

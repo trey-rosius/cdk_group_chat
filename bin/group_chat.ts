@@ -2,9 +2,9 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { GroupChatStack } from "../lib/grouChatStack";
-import { UserLambdaStacks } from "../lib/user_lambda_stack";
-import { GroupLambdaStacks } from "../lib/group_lambda_stack";
-import { MessageStack } from "../lib/message_stack";
+import { UserLambdaStacks } from "../lib/userLambdaStack";
+import { GroupLambdaStacks } from "../lib/groupLambdaStack";
+import { MessageStack } from "../lib/messageStack";
 
 const app = new cdk.App();
 const groupChatStack = new GroupChatStack(app, "GroupChatStack", {
