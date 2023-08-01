@@ -40,7 +40,7 @@ export class UserLambdaStacks extends Stack {
       "CodeSigningConfig",
       {
         signingProfiles: [signingProfile],
-      },
+      }
     );
     const userLambda = new NodejsFunction(this, "GroupChatUserHandler", {
       tracing: Tracing.ACTIVE,
@@ -50,22 +50,22 @@ export class UserLambdaStacks extends Stack {
       entry: path.join(
         __dirname,
         "lambda_fns/user",
-        "CreateUserAccountsLambda.ts",
+        "createUserAccountsLambda.ts"
       ),
 
       memorySize: 1024,
     });
     userLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs",
-      ),
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
     );
 
     const appsyncLambdaRole = new Role(this, "LambdaRole", {
       assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
     });
     appsyncLambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
+      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess")
     );
     const lambdaDataSources: CfnDataSource = new CfnDataSource(
       this,
@@ -79,7 +79,7 @@ export class UserLambdaStacks extends Stack {
           lambdaFunctionArn: userLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      },
+      }
     );
 
     const createUserAccountResolver: CfnResolver = new CfnResolver(
@@ -90,7 +90,7 @@ export class UserLambdaStacks extends Stack {
         typeName: "Mutation",
         fieldName: "createUserAccount",
         dataSourceName: lambdaDataSources.attrName,
-      },
+      }
     );
     const getUserResolver: CfnResolver = new CfnResolver(
       this,
@@ -101,13 +101,13 @@ export class UserLambdaStacks extends Stack {
         fieldName: "getUserAccount",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_user_request.vtl",
+          "./lib/vtl/get_user_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_user_response.vtl",
+          "./lib/vtl/get_user_response.vtl"
         ).toString(),
-      },
+      }
     );
     const getAllUsersResolver: CfnResolver = new CfnResolver(
       this,
@@ -118,13 +118,13 @@ export class UserLambdaStacks extends Stack {
         fieldName: "getAllUserAccounts",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_users_request.vtl",
+          "./lib/vtl/get_all_users_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_users_response.vtl",
+          "./lib/vtl/get_all_users_response.vtl"
         ).toString(),
-      },
+      }
     );
     createUserAccountResolver.addDependsOn(apiSchema);
     getAllUsersResolver.addDependsOn(apiSchema);

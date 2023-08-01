@@ -1,0 +1,31 @@
+ 
+#set($limit=$util.defaultIfNull($ctx.args.limit, 10))
+#if($limit>10)
+  #set($limit=10)
+#end
+ #set($GSI3SK = $util.dynamodb.toStringJson("GROUP#${ctx.args.groupId}"))
+ #set($GSI3PK = $util.dynamodb.toStringJson("USER#"))
+{
+    "version" : "2018-05-29",
+
+    "operation" : "Query",
+    "limit": $util.toJson($limit),
+    "nextToken":$util.toJson($util.defaultIfNull($ctx.args.nextToken, null)),
+    "query" : {
+        "expression": "#GSI3SK  = :GSI3SK and begins_with(#GSI3PK,:GSI3PK)",
+        "expressionNames":{
+        "#GSI3SK":"GSI3SK",
+        "#GSI3PK":"GSI3PK"
+        },
+        
+        "expressionValues" : {
+            ":GSI3SK" : $GSI3SK,
+            ":GSI3PK" :$GSI3PK
+        },
+        
+    },
+    "index":"getAllUsersPerGroup",
+    "scanIndexForward" : false
+
+
+}

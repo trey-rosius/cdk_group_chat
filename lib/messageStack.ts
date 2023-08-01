@@ -41,7 +41,7 @@ export class MessageStack extends Stack {
       "CodeSigningConfig",
       {
         signingProfiles: [signingProfile],
-      },
+      }
     );
 
     const sendMessageLambda = new NodejsFunction(this, "MessageLambdaHandler", {
@@ -52,7 +52,7 @@ export class MessageStack extends Stack {
       entry: path.join(
         __dirname,
         "lambda_fns/message",
-        "SendMessageHandler.ts",
+        "sendMessageHandler.ts"
       ),
 
       memorySize: 1024,
@@ -69,28 +69,28 @@ export class MessageStack extends Stack {
         entry: path.join(
           __dirname,
           "lambda_fns/message",
-          "TypingIndicatorLambdaHandler.ts",
+          "typingIndicatorLambdaHandler.ts"
         ),
 
         memorySize: 1024,
-      },
+      }
     );
     sendMessageLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs",
-      ),
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
     );
     typingIndicatorLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs",
-      ),
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
     );
 
     const appsyncLambdaRole = new Role(this, "LambdaRole", {
       assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
     });
     appsyncLambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
+      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess")
     );
     const lambdaDataSources: CfnDataSource = new CfnDataSource(
       this,
@@ -104,7 +104,7 @@ export class MessageStack extends Stack {
           lambdaFunctionArn: sendMessageLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      },
+      }
     );
 
     const typingIndicatorDataSources: CfnDataSource = new CfnDataSource(
@@ -119,7 +119,7 @@ export class MessageStack extends Stack {
           lambdaFunctionArn: typingIndicatorLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      },
+      }
     );
 
     const sendMessageResolver: CfnResolver = new CfnResolver(
@@ -130,7 +130,7 @@ export class MessageStack extends Stack {
         typeName: "Mutation",
         fieldName: "sendMessage",
         dataSourceName: lambdaDataSources.attrName,
-      },
+      }
     );
     const typingIndicatorResolver: CfnResolver = new CfnResolver(
       this,
@@ -140,7 +140,7 @@ export class MessageStack extends Stack {
         typeName: "Mutation",
         fieldName: "typingIndicator",
         dataSourceName: typingIndicatorDataSources.attrName,
-      },
+      }
     );
 
     const getResultMessagesPerGroupResolver: CfnResolver = new CfnResolver(
@@ -152,13 +152,13 @@ export class MessageStack extends Stack {
         fieldName: "getAllMessagesPerGroup",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_messages_per_group_request.vtl",
+          "./lib/vtl/get_all_messages_per_group_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_messages_per_group_response.vtl",
+          "./lib/vtl/get_all_messages_per_group_response.vtl"
         ).toString(),
-      },
+      }
     );
 
     const getUserPerMessageResolver: CfnResolver = new CfnResolver(
@@ -170,13 +170,13 @@ export class MessageStack extends Stack {
         fieldName: "user",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_user_per_message_request.vtl",
+          "./lib/vtl/get_user_per_message_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_user_per_message_response.vtl",
+          "./lib/vtl/get_user_per_message_response.vtl"
         ).toString(),
-      },
+      }
     );
     sendMessageResolver.addDependsOn(apiSchema);
     typingIndicatorResolver.addDependsOn(apiSchema);
@@ -190,7 +190,7 @@ export class MessageStack extends Stack {
     sendMessageLambda.addEnvironment("GroupChat_DB", groupChatTable.tableName);
     typingIndicatorLambda.addEnvironment(
       "GroupChat_DB",
-      groupChatTable.tableName,
+      groupChatTable.tableName
     );
   }
 }

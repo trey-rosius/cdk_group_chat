@@ -157,6 +157,24 @@ export class GroupLambdaStacks extends Stack {
       },
     );
 
+    const getAllUsersPerGroupResolver: CfnResolver = new CfnResolver(
+      this,
+      "getAllUsersPerGroup",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getAllUsersPerGroup",
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_all_users_per_group_request.vtl",
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_all_users_per_group_response.vtl",
+        ).toString(),
+      },
+    );
+
     const getGroupsUserBelongsToResolver: CfnResolver = new CfnResolver(
       this,
       "getAllGroupsUserBelongsTo",
@@ -195,6 +213,7 @@ export class GroupLambdaStacks extends Stack {
     createGroupResolver.addDependsOn(apiSchema);
     addUserToGroupResolver.addDependsOn(apiSchema);
     getGroupsCreatedByUserResolver.addDependsOn(apiSchema);
+    getAllUsersPerGroupResolver.addDependsOn(apiSchema);
     getGroupsUserBelongsToResolver.addDependsOn(apiSchema);
     getGroupResolver.addDependsOn(getGroupsUserBelongsToResolver);
     groupChatTable.grantFullAccess(createGroupLambda);

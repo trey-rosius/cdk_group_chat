@@ -49,14 +49,14 @@ export class GroupChatStack extends Stack {
             mutable: true,
           },
         },
-      },
+      }
     );
     const dynamoDBRole = new Role(this, "DynamoDBRole", {
       assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
     });
 
     dynamoDBRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess"),
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess")
     );
 
     const userPoolClient: UserPoolClient = new cognito.UserPoolClient(
@@ -64,7 +64,7 @@ export class GroupChatStack extends Stack {
       "GroupChatUserPoolClient",
       {
         userPool,
-      },
+      }
     );
 
     /**
@@ -78,8 +78,8 @@ export class GroupChatStack extends Stack {
 
     cloudWatchRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs",
-      ),
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
     );
 
     /**
@@ -197,6 +197,23 @@ export class GroupChatStack extends Stack {
       projectionType: ProjectionType.ALL,
     });
 
+    /**
+     * Inverted GSI3 to get all users for a group
+     */
+    this.groupChatTable.addGlobalSecondaryIndex({
+      indexName: "getAllUsersPerGroup",
+      partitionKey: {
+        name: "GSI3SK",
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: "GSI3PK",
+        type: AttributeType.STRING,
+      },
+
+      projectionType: ProjectionType.ALL,
+    });
+
     this.groupChatTableDatasource = new CfnDataSource(
       this,
       "groupChatDynamoDBTableDataSource",
@@ -209,7 +226,7 @@ export class GroupChatStack extends Stack {
           awsRegion: this.region,
         },
         serviceRoleArn: dynamoDBRole.roleArn,
-      },
+      }
     );
 
     /**

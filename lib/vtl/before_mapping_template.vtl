@@ -1,2 +1,3 @@
-#set($result = { "userId": $ctx.args.userId,"limit":$ctx.args.userId,"nextToken":$ctx.args.nextToken })
+#set($result = { "userId": $ctx.args.userId,"limit":$ctx.args.userId,
+"nextToken":$ctx.args.nextToken })
 $util.toJson($result)
