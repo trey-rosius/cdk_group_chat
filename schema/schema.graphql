@@ -45,7 +45,7 @@ type Query {
     groupId: String!
     limit: Int
     nextToken: String
-  ): [GroupUser!]! @aws_cognito_user_pools
+  ): GroupUserResult! @aws_cognito_user_pools
   getAllMessagesPerGroup(
     groupId: String!
     limit: Int
@@ -66,8 +66,8 @@ type User @aws_cognito_user_pools {
   username: String!
   email: String!
   profilePicKey: String!
-  updatedOn: AWSDateTime
-  createdOn: AWSDateTime
+  updatedOn: String
+  createdOn: String
 }
 
 input UserInput @aws_cognito_user_pools {
@@ -104,7 +104,7 @@ input MessageInput @aws_cognito_user_pools {
 type UserGroup @aws_cognito_user_pools {
   userId: String!
   group: Group!
-  createdOn: AWSTimestamp!
+  createdOn: String!
 }
 
 type Group @aws_cognito_user_pools {
@@ -113,7 +113,7 @@ type Group @aws_cognito_user_pools {
   name: String!
   groupProfilePicKey: String!
   description: String!
-  createdOn: AWSTimestamp!
+  createdOn: String!
 }
 
 input GroupInput {
@@ -130,7 +130,7 @@ type GroupResult @aws_cognito_user_pools {
 type GroupUser @aws_cognito_user_pools {
   groupId: String!
   user: User!
-  createdOn: AWSTimestamp!
+  createdOn: String!
 }
 type GroupUserResult @aws_cognito_user_pools {
   items: [GroupUser!]! @aws_cognito_user_pools

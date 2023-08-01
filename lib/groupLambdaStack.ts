@@ -1,6 +1,7 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import {
   CfnDataSource,
+  CfnFunctionConfiguration,
   CfnGraphQLApi,
   CfnGraphQLSchema,
   CfnResolver,
@@ -40,7 +41,7 @@ export class GroupLambdaStacks extends Stack {
       "CodeSigningConfig",
       {
         signingProfiles: [signingProfile],
-      },
+      }
     );
 
     const createGroupLambda = new NodejsFunction(this, "GroupLambdaHandler", {
@@ -54,8 +55,8 @@ export class GroupLambdaStacks extends Stack {
     });
     createGroupLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs",
-      ),
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
     );
 
     const addUserToGroupLambda = new NodejsFunction(
@@ -69,23 +70,23 @@ export class GroupLambdaStacks extends Stack {
         entry: path.join(
           __dirname,
           "lambda_fns/group",
-          "AddUserToGroupHandler.ts",
+          "AddUserToGroupHandler.ts"
         ),
 
         memorySize: 1024,
-      },
+      }
     );
     addUserToGroupLambda.role?.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSAppSyncPushToCloudWatchLogs",
-      ),
+        "service-role/AWSAppSyncPushToCloudWatchLogs"
+      )
     );
 
     const appsyncLambdaRole = new Role(this, "LambdaRole", {
       assumedBy: new ServicePrincipal("appsync.amazonaws.com"),
     });
     appsyncLambdaRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
+      ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess")
     );
     const lambdaDataSources: CfnDataSource = new CfnDataSource(
       this,
@@ -99,7 +100,7 @@ export class GroupLambdaStacks extends Stack {
           lambdaFunctionArn: createGroupLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      },
+      }
     );
 
     const addUserToGroupDataSources: CfnDataSource = new CfnDataSource(
@@ -114,7 +115,7 @@ export class GroupLambdaStacks extends Stack {
           lambdaFunctionArn: addUserToGroupLambda.functionArn,
         },
         serviceRoleArn: appsyncLambdaRole.roleArn,
-      },
+      }
     );
 
     const createGroupResolver: CfnResolver = new CfnResolver(
@@ -125,7 +126,7 @@ export class GroupLambdaStacks extends Stack {
         typeName: "Mutation",
         fieldName: "createGroup",
         dataSourceName: lambdaDataSources.attrName,
-      },
+      }
     );
 
     const addUserToGroupResolver: CfnResolver = new CfnResolver(
@@ -136,7 +137,62 @@ export class GroupLambdaStacks extends Stack {
         typeName: "Mutation",
         fieldName: "addUserToGroup",
         dataSourceName: addUserToGroupDataSources.attrName,
-      },
+      }
+    );
+
+    const getAllUsersPerGroupFunction: CfnFunctionConfiguration =
+      new CfnFunctionConfiguration(this, "getAllUsersPerGroupFunction", {
+        apiId: groupChatGraphqlApi.attrApiId,
+
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_all_users_per_group_request.vtl"
+        ).toString(),
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_all_users_per_group_response.vtl"
+        ).toString(),
+        functionVersion: "2018-05-29",
+        name: "getAllUsersPerGroupFunction",
+      });
+
+    const getUserPerGroupFunction: CfnFunctionConfiguration =
+      new CfnFunctionConfiguration(this, "getUserPerGroupFunction", {
+        apiId: groupChatGraphqlApi.attrApiId,
+
+        dataSourceName: groupChatDatasource.name,
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/get_user_per_group_request.vtl"
+        ).toString(),
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/get_user_per_group_response.vtl"
+        ).toString(),
+        functionVersion: "2018-05-29",
+        name: "getUserPerGroupFunction",
+      });
+
+    const getResultUsersPerGroupResolver: CfnResolver = new CfnResolver(
+      this,
+      "getResultUsersPerGroupResolver",
+      {
+        apiId: groupChatGraphqlApi.attrApiId,
+        typeName: "Query",
+        fieldName: "getAllUsersPerGroup",
+        kind: "PIPELINE",
+        pipelineConfig: {
+          functions: [
+            getAllUsersPerGroupFunction.attrFunctionId,
+            getUserPerGroupFunction.attrFunctionId,
+          ],
+        },
+
+        requestMappingTemplate: readFileSync(
+          "./lib/vtl/before_mapping_template.vtl"
+        ).toString(),
+
+        responseMappingTemplate: readFileSync(
+          "./lib/vtl/after_mapping_template.vtl"
+        ).toString(),
+      }
     );
 
     const getGroupsCreatedByUserResolver: CfnResolver = new CfnResolver(
@@ -148,31 +204,13 @@ export class GroupLambdaStacks extends Stack {
         fieldName: "getAllGroupsCreatedByUser",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_created_by_user_request.vtl",
+          "./lib/vtl/get_groups_created_by_user_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_created_by_user_response.vtl",
+          "./lib/vtl/get_groups_created_by_user_response.vtl"
         ).toString(),
-      },
-    );
-
-    const getAllUsersPerGroupResolver: CfnResolver = new CfnResolver(
-      this,
-      "getAllUsersPerGroup",
-      {
-        apiId: groupChatGraphqlApi.attrApiId,
-        typeName: "Query",
-        fieldName: "getAllUsersPerGroup",
-        dataSourceName: groupChatDatasource.name,
-        requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_users_per_group_request.vtl",
-        ).toString(),
-
-        responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_all_users_per_group_response.vtl",
-        ).toString(),
-      },
+      }
     );
 
     const getGroupsUserBelongsToResolver: CfnResolver = new CfnResolver(
@@ -184,13 +222,13 @@ export class GroupLambdaStacks extends Stack {
         fieldName: "getGroupsUserBelongsTo",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_user_belongs_to_request.vtl",
+          "./lib/vtl/get_groups_user_belongs_to_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_groups_user_belongs_to_response.vtl",
+          "./lib/vtl/get_groups_user_belongs_to_response.vtl"
         ).toString(),
-      },
+      }
     );
 
     const getGroupResolver: CfnResolver = new CfnResolver(
@@ -202,18 +240,18 @@ export class GroupLambdaStacks extends Stack {
         fieldName: "group",
         dataSourceName: groupChatDatasource.name,
         requestMappingTemplate: readFileSync(
-          "./lib/vtl/get_group_request.vtl",
+          "./lib/vtl/get_group_request.vtl"
         ).toString(),
 
         responseMappingTemplate: readFileSync(
-          "./lib/vtl/get_group_response.vtl",
+          "./lib/vtl/get_group_response.vtl"
         ).toString(),
-      },
+      }
     );
     createGroupResolver.addDependsOn(apiSchema);
+    getResultUsersPerGroupResolver.addDependsOn(apiSchema);
     addUserToGroupResolver.addDependsOn(apiSchema);
     getGroupsCreatedByUserResolver.addDependsOn(apiSchema);
-    getAllUsersPerGroupResolver.addDependsOn(apiSchema);
     getGroupsUserBelongsToResolver.addDependsOn(apiSchema);
     getGroupResolver.addDependsOn(getGroupsUserBelongsToResolver);
     groupChatTable.grantFullAccess(createGroupLambda);

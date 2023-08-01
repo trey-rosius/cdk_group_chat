@@ -1,2 +1,5 @@
 
-$util.toJson($ctx.result)
+$util.toJson({
+  "nextToken": $ctx.stash.nextToken,
+  "items": $ctx.result
+})
